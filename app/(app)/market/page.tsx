@@ -45,7 +45,6 @@ export default async function MarketPage() {
     (portfolioRaw as PortfolioItemsRow[] | null) ?? []
 
   const today = new Date().toISOString().split("T")[0]
-  const yesterday = startOfYesterday()
 
   const commodityNames = portfolio.map((i) => getCommodityName(i.name))
 
@@ -55,7 +54,6 @@ export default async function MarketPage() {
         .from("market_prices")
         .select("*")
         .in("commodity", commodityNames)
-        .gte("price_date", yesterday)
         .order("price_date", { ascending: false }),
       supabase
         .from("price_alerts")

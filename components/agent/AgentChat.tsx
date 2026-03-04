@@ -39,22 +39,156 @@ export function AgentChat({
 }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>(() => {
     if (recentInteractions.length === 0) return []
-    const last = recentInteractions[0]
-    return [
-      { role: "user", content: last.user_message },
-      { role: "assistant", content: last.agent_response },
-    ]
+
+    const ordered = [...recentInteractions].sort((a, b) => {
+      const aTime = a.created_at ?? ""
+      const bTime = b.created_at ?? ""
+      return aTime.localeCompare(bTime)
+    })
+
+    const initial: ChatMessage[] = []
+    for (const i of ordered) {
+      if (i.user_message) {
+        initial.push({
+          role: "user",
+          content: i.user_message,
+        })
+      }
+      if (i.agent_response) {
+        initial.push({
+          role: "assistant",
+          content: i.agent_response,
+        })
+      }
+    }
+    return initial
   })
   const [isStreaming, setIsStreaming] = useState(false)
   const [skillLabel, setSkillLabel] = useState<string>("")
   const [isRefreshingContext, startRefresh] = useTransition()
   const chatEndRef = useRef<HTMLDivElement | null>(null)
+  const scrollContainerRef =
+    useRef<HTMLDivElement | null>(null)
+  const [isLoadingHistory, setIsLoadingHistory] =
+    useState(false)
+  const [hasMoreHistory, setHasMoreHistory] = useState(
+    recentInteractions.length >= 20,
+  )
+  const [oldestCreatedAt, setOldestCreatedAt] = useState<
+    string | null
+  >(() => {
+    if (recentInteractions.length === 0) return null
+    return recentInteractions.reduce<string | null>(
+      (min, i) => {
+        if (!i.created_at) return min
+        if (!min || i.created_at < min) return i.created_at
+        return min
+      },
+      null,
+    )
+  })
 
   useEffect(() => {
     if (chatEndRef.current) {
       chatEndRef.current.scrollIntoView({ behavior: "smooth" })
     }
   }, [messages, isStreaming])
+
+  useEffect(() => {
+    const el = scrollContainerRef.current
+    if (!el) return
+
+    function onScroll() {
+      if (isLoadingHistory || !hasMoreHistory) return
+      if (el.scrollTop <= 40) {
+        void loadMoreHistory()
+      }
+    }
+
+    el.addEventListener("scroll", onScroll)
+    return () => {
+      el.removeEventListener("scroll", onScroll)
+    }
+  }, [isLoadingHistory, hasMoreHistory, oldestCreatedAt])
+
+  async function loadMoreHistory() {
+    if (!oldestCreatedAt || isLoadingHistory) return
+    setIsLoadingHistory(true)
+    const el = scrollContainerRef.current
+    const prevScrollHeight = el?.scrollHeight ?? 0
+    const prevScrollTop = el?.scrollTop ?? 0
+
+    try {
+      const res = await fetch(
+        `/api/agent/history?before=${encodeURIComponent(
+          oldestCreatedAt,
+        )}`,
+      )
+      const data = (await res.json()) as {
+        interactions?: AgentInteractionsRow[]
+        hasMore?: boolean
+      }
+
+      if (!res.ok || !data.interactions) {
+        setHasMoreHistory(false)
+        return
+      }
+
+      if (data.interactions.length === 0) {
+        setHasMoreHistory(false)
+        return
+      }
+
+      const ordered = [...data.interactions].sort(
+        (a, b) => {
+          const aTime = a.created_at ?? ""
+          const bTime = b.created_at ?? ""
+          return aTime.localeCompare(bTime)
+        },
+      )
+
+      const olderMessages: ChatMessage[] = []
+      for (const i of ordered) {
+        if (i.user_message) {
+          olderMessages.push({
+            role: "user",
+            content: i.user_message,
+          })
+        }
+        if (i.agent_response) {
+          olderMessages.push({
+            role: "assistant",
+            content: i.agent_response,
+          })
+        }
+      }
+
+      setMessages((prev) => [...olderMessages, ...prev])
+
+      const newOldest = ordered.reduce<string | null>(
+        (min, i) => {
+          if (!i.created_at) return min
+          if (!min || i.created_at < min) return i.created_at
+          return min
+        },
+        oldestCreatedAt,
+      )
+      setOldestCreatedAt(newOldest)
+      setHasMoreHistory(Boolean(data.hasMore))
+
+      // Preserve scroll position so loading feels seamless.
+      requestAnimationFrame(() => {
+        const container = scrollContainerRef.current
+        if (!container) return
+        const newScrollHeight = container.scrollHeight
+        const heightDiff =
+          newScrollHeight - prevScrollHeight
+        container.scrollTop = prevScrollTop + heightDiff
+      })
+    } finally {
+      setIsLoadingHistory(false)
+    }
+  }
 
   async function sendMessage(text: string) {
     if (!text.trim()) return
@@ -196,11 +330,19 @@ export function AgentChat({
           </button>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-4 py-3">
-          {messages.length === 0 && (
+        <div
+          ref={scrollContainerRef}
+          className="flex-1 overflow-y-auto px-4 py-3"
+        >
+          {messages.length === 0 && !isLoadingHistory && (
             <AgentSuggestions onSelect={handleSuggestionClick} />
           )}
           <div className="space-y-3">
+            {isLoadingHistory && (
+              <p className="text-[11px] text-gray-400">
+                Loading earlier messages…
+              </p>
+            )}
             {messages.map((m, idx) => (
               <AgentMessage
                 key={idx}

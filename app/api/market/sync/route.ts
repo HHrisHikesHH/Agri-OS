@@ -44,17 +44,26 @@ export async function POST(request: NextRequest) {
 
       if (prices.length === 0) continue
 
-      const rows = prices.map((p) => ({
-        commodity: p.commodity,
-        mandi_name: p.market,
-        district: p.district,
-        state: p.state,
-        price_date: new Date(p.arrival_date).toISOString().split("T")[0],
-        min_price: p.min_price,
-        max_price: p.max_price,
-        modal_price: p.modal_price,
-        unit: "quintal",
-      }))
+      const rows = prices.map((p) => {
+        // arrival_date from API is in DD/MM/YYYY format — convert safely to YYYY-MM-DD
+        const [day, month, year] = p.arrival_date.split("/")
+        const priceDate =
+          day && month && year
+            ? `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`
+            : new Date().toISOString().split("T")[0]
+
+        return {
+          commodity: p.commodity,
+          mandi_name: p.market,
+          district: p.district,
+          state: p.state,
+          price_date: priceDate,
+          min_price: p.min_price,
+          max_price: p.max_price,
+          modal_price: p.modal_price,
+          unit: "quintal",
+        }
+      })
 
       const { error } = await supabase
         .from("market_prices")

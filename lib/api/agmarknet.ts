@@ -18,7 +18,11 @@ export async function fetchMandiPrices(params: {
   commodity?: string
   state?: string
   district?: string
+  market?: string
+  variety?: string
+  grade?: string
   limit?: number
+  offset?: number
 }): Promise<MandiPrice[]> {
   const url = new URL(AGMARKNET_BASE)
   url.searchParams.set("api-key", API_KEY ?? "your_free_key_here")
@@ -29,10 +33,22 @@ export async function fetchMandiPrices(params: {
     url.searchParams.set("filters[commodity]", params.commodity)
   }
   if (params.state) {
-    url.searchParams.set("filters[state]", params.state)
+    url.searchParams.set("filters[state.keyword]", params.state)
   }
   if (params.district) {
     url.searchParams.set("filters[district]", params.district)
+  }
+  if (params.market) {
+    url.searchParams.set("filters[market]", params.market)
+  }
+  if (params.variety) {
+    url.searchParams.set("filters[variety]", params.variety)
+  }
+  if (params.grade) {
+    url.searchParams.set("filters[grade]", params.grade)
+  }
+  if (typeof params.offset === "number") {
+    url.searchParams.set("offset", String(params.offset))
   }
 
   try {
