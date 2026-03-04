@@ -4,6 +4,15 @@ import {
   getCommodityVariants,
 } from "@/lib/api/agmarknet"
 
+type MarketDebugRow = {
+  commodity: string
+  raw_commodity?: string | null
+  state: string | null
+  district: string | null
+  price_date: string
+  modal_price: number | null
+}
+
 export default async function MarketDebugPage() {
   const supabase = createClient()
 
@@ -20,9 +29,14 @@ export default async function MarketDebugPage() {
     .select("name")
     .eq("is_active", true)
 
+  const typedMarketRows = (marketRows ?? []) as MarketDebugRow[]
+  const typedPortfolioItems = (portfolioItems ?? []) as { name: string }[]
+
   return (
     <div className="max-w-4xl space-y-6 p-4 text-xs md:p-8 bg-gray-50 dark:bg-gray-950 min-h-full">
       <h1 className="text-lg font-bold text-gray-900 dark:text-gray-100">
+        🔍 Market debug
+      </h1>
 
       <section>
         <h2 className="mb-2 font-semibold text-gray-900 dark:text-gray-100">
@@ -43,7 +57,7 @@ export default async function MarketDebugPage() {
             </tr>
           </thead>
           <tbody>
-            {(portfolioItems ?? []).map((item) => {
+            {typedPortfolioItems.map((item) => {
               const primary = getCommodityName(item.name)
               const variants = getCommodityVariants(item.name)
               return (
@@ -102,7 +116,7 @@ export default async function MarketDebugPage() {
             </tr>
           </thead>
           <tbody>
-            {(marketRows ?? []).map((row, idx) => (
+            {typedMarketRows.map((row, idx) => (
               <tr
                 key={`${row.commodity}-${row.price_date}-${idx}`}
                 className={
@@ -115,10 +129,7 @@ export default async function MarketDebugPage() {
                   {row.commodity}
                 </td>
                 <td className="border border-gray-200 dark:border-gray-800 px-2 py-1 text-gray-600 dark:text-gray-400">
-                  {"raw_commodity" in row
-                    ? // @ts-expect-error dynamic column
-                      row.raw_commodity ?? ""
-                    : ""}
+                  {row.raw_commodity ?? ""}
                 </td>
                 <td className="border border-gray-200 dark:border-gray-800 px-2 py-1 text-gray-800 dark:text-gray-200">
                   {row.state}
@@ -134,7 +145,7 @@ export default async function MarketDebugPage() {
                 </td>
               </tr>
             ))}
-            {(marketRows ?? []).length === 0 && (
+            {typedMarketRows.length === 0 && (
               <tr>
                 <td
                   colSpan={6}
