@@ -77,11 +77,11 @@ export function SeasonsOverview({ seasons }: SeasonsOverviewProps) {
   return (
     <div className="space-y-8">
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-green-800">
+        <h2 className="text-sm font-semibold text-green-800 dark:text-green-400">
           Current & upcoming seasons
         </h2>
         {activeSeasons.length === 0 ? (
-          <p className="rounded-xl border border-dashed border-green-200 bg-green-50/60 p-4 text-sm text-green-900">
+          <p className="rounded-xl border border-dashed border-green-200 dark:border-green-900 bg-green-50/60 dark:bg-green-950/20 p-4 text-sm text-green-900 dark:text-green-300">
             No active seasons yet. Add Kharif or Rabi to start planning crop
             cycles.
           </p>
@@ -95,9 +95,11 @@ export function SeasonsOverview({ seasons }: SeasonsOverviewProps) {
       </section>
 
       <section className="space-y-3">
-        <h2 className="text-sm font-semibold text-green-800">Past seasons</h2>
+        <h2 className="text-sm font-semibold text-green-800 dark:text-green-400">
+          Past seasons
+        </h2>
         {pastSeasons.length === 0 ? (
-          <p className="text-xs text-gray-500">
+          <p className="text-xs text-gray-500 dark:text-gray-400">
             Once seasons end, they will appear here for historical analysis.
           </p>
         ) : (
@@ -109,18 +111,18 @@ export function SeasonsOverview({ seasons }: SeasonsOverviewProps) {
         )}
       </section>
 
-      <section className="space-y-3 rounded-xl border bg-white p-4 shadow-sm">
-        <h2 className="text-sm font-semibold text-green-800">
+      <section className="space-y-3 rounded-xl border bg-white dark:bg-gray-900 dark:border-gray-800 p-4 shadow-sm dark:shadow-gray-950">
+        <h2 className="text-sm font-semibold text-green-800 dark:text-green-400">
           Add new season
         </h2>
 
         {formState.error && (
-          <p className="rounded-md bg-red-50 px-3 py-2 text-xs text-red-700">
+          <p className="rounded-md bg-red-50 dark:bg-red-900/30 px-3 py-2 text-xs text-red-700 dark:text-red-400">
             {formState.error}
           </p>
         )}
         {formState.success && (
-          <p className="rounded-md bg-green-50 px-3 py-2 text-xs text-green-800">
+          <p className="rounded-md bg-green-50 dark:bg-green-950/20 px-3 py-2 text-xs text-green-800 dark:text-green-300">
             Season added.
           </p>
         )}
@@ -197,7 +199,7 @@ export function SeasonsOverview({ seasons }: SeasonsOverviewProps) {
             />
           </div>
           <div className="space-y-1.5 md:col-span-2">
-            <Label className="text-xs text-gray-700">
+            <Label className="text-xs text-gray-700 dark:text-gray-300">
               Date range (optional)
             </Label>
             <div className="grid grid-cols-2 gap-2">

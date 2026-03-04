@@ -1,4 +1,4 @@
-'use client'
+"use client"
 
 import { useState } from "react"
 
@@ -9,6 +9,9 @@ import type {
   TransactionsRow,
 } from "@/lib/types/database.types"
 import { formatINR, profitBg, profitColor } from "@/lib/utils/currency"
+import { AnimatedINR, AnimatedNumber } from "@/components/ui/AnimatedNumber"
+import { PressButton } from "@/components/ui/PressButton"
+import { SpringCard } from "@/components/ui/SpringCard"
 
 import { AddExpenseForm } from "./AddExpenseForm"
 import { AddSaleForm } from "./AddSaleForm"
@@ -54,8 +57,10 @@ export function FinancialOverview({
 
   return (
     <>
-      <h1 className="text-2xl font-bold text-green-800">💰 Finances</h1>
-      <p className="mt-1 text-sm text-gray-500">
+      <h1 className="text-2xl font-bold text-green-800 dark:text-green-400">
+        💰 Finances
+      </h1>
+      <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
         Track every rupee in and out of your farm.
       </p>
 
@@ -83,29 +88,33 @@ export function FinancialOverview({
 
       {/* Quick actions */}
       <div className="mt-6 flex flex-wrap gap-3">
-        <button
-          type="button"
-          className="inline-flex items-center rounded-lg bg-green-700 px-4 py-2 text-xs font-medium text-white shadow-sm hover:bg-green-800"
+        <PressButton
+          size="sm"
+          variant="primary"
           onClick={() => setShowSaleForm(true)}
+          className="font-mono"
         >
           + Log sale
-        </button>
-        <button
-          type="button"
-          className="inline-flex items-center rounded-lg border border-green-200 bg-green-50 px-4 py-2 text-xs font-medium text-green-800 shadow-sm hover:bg-green-100"
+        </PressButton>
+        <PressButton
+          size="sm"
+          variant="secondary"
           onClick={() => setShowExpenseForm(true)}
+          className="font-mono"
         >
           + Log expense
-        </button>
+        </PressButton>
       </div>
 
       {showSaleForm && (
-        <div className="mt-6 rounded-xl border bg-white p-4 shadow-sm">
+        <SpringCard className="mt-6 p-4">
           <div className="mb-2 flex items-center justify-between gap-2">
-            <h2 className="text-sm font-semibold text-green-800">Log a sale</h2>
+            <h2 className="text-sm font-semibold text-green-800 dark:text-green-400">
+              Log a sale
+            </h2>
             <button
               type="button"
-              className="text-xs text-gray-500 hover:text-gray-700"
+              className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
               onClick={() => setShowSaleForm(false)}
             >
               Close
@@ -115,46 +124,54 @@ export function FinancialOverview({
             portfolioItems={portfolioItems}
             cycles={activeCycles}
           />
-        </div>
+        </SpringCard>
       )}
 
       {showExpenseForm && (
-        <div className="mt-6 rounded-xl border bg-white p-4 shadow-sm">
+        <SpringCard className="mt-6 p-4">
           <div className="mb-2 flex items-center justify-between gap-2">
-            <h2 className="text-sm font-semibold text-green-800">
+            <h2 className="text-sm font-semibold text-green-800 dark:text-green-400">
               Log an expense
             </h2>
             <button
               type="button"
-              className="text-xs text-gray-500 hover:text-gray-700"
+              className="text-xs text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-200"
               onClick={() => setShowExpenseForm(false)}
             >
               Close
             </button>
           </div>
           <AddExpenseForm cycles={activeCycles} />
-        </div>
+        </SpringCard>
       )}
 
       {/* Active cycles P&L */}
       {activeCycles.length > 0 && (
         <section className="mt-8 space-y-3">
-          <h2 className="text-sm font-semibold text-green-800">
+          <h2 className="text-sm font-semibold text-green-800 dark:text-green-400">
             Active crop P&amp;L
           </h2>
           {activeCycles.map((cycle) => (
-            <div
+            <SpringCard
               key={cycle.id}
-              className="flex items-center justify-between rounded-xl border bg-white p-3 text-xs shadow-sm"
+              className="flex items-center justify-between p-3 text-xs"
             >
               <div>
-                <p className="font-semibold text-green-900">
+                <p className="font-semibold text-green-900 dark:text-green-300">
                   {cycle.portfolio_items?.name ?? "Crop"} ·{" "}
                   {cycle.area_acres ?? 0} acres
                 </p>
-                <p className="mt-0.5 text-[11px] text-gray-600">
-                  Revenue {formatINR(cycle.total_revenue ?? 0)} · Cost{" "}
-                  {formatINR(cycle.total_input_cost ?? 0)}
+                <p className="mt-0.5 text-[11px] text-gray-600 dark:text-gray-400">
+                  Revenue{" "}
+                  <AnimatedINR
+                    value={cycle.total_revenue ?? 0}
+                    className="text-xs"
+                  />{" "}
+                  · Cost{" "}
+                  <AnimatedINR
+                    value={cycle.total_input_cost ?? 0}
+                    className="text-xs"
+                  />
                 </p>
               </div>
               <div
@@ -167,15 +184,19 @@ export function FinancialOverview({
                     cycle.net_profit ?? 0,
                   )}`}
                 >
-                  {formatINR(cycle.net_profit ?? 0)}
+                  <AnimatedINR value={cycle.net_profit ?? 0} />
                 </p>
-                <p className="text-[10px] text-gray-600">
-                  {cycle.profit_per_acre
-                    ? `${formatINR(cycle.profit_per_acre)} / acre`
-                    : "— / acre"}
+                <p className="text-[10px] text-gray-600 dark:text-gray-400">
+                  {cycle.profit_per_acre ? (
+                    <>
+                      <AnimatedINR value={cycle.profit_per_acre} /> / acre
+                    </>
+                  ) : (
+                    "— / acre"
+                  )}
                 </p>
               </div>
-            </div>
+            </SpringCard>
           ))}
         </section>
       )}
@@ -183,48 +204,54 @@ export function FinancialOverview({
       {/* Recent sales */}
       <section className="mt-8">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-green-800">Recent sales</h2>
+          <h2 className="text-sm font-semibold text-green-800 dark:text-green-400">
+            Recent sales
+          </h2>
           <a
             href="/finances/sales"
-            className="text-xs font-medium text-green-700 hover:underline"
+            className="text-xs font-medium text-green-700 dark:text-green-400 hover:underline"
           >
             View all →
           </a>
         </div>
         {recentSales.length === 0 ? (
-          <p className="py-4 text-center text-xs text-gray-400">
+          <p className="py-4 text-center text-xs text-gray-400 dark:text-gray-500">
             No sales recorded yet — use &quot;Log sale&quot; to record your
             first sale.
           </p>
         ) : (
           <ul className="space-y-2 text-xs">
             {recentSales.map((sale) => (
-              <li
+              <SpringCard
                 key={sale.id}
-                className="flex items-center justify-between rounded-xl border bg-white p-3 shadow-sm"
+                className="flex items-center justify-between p-3"
               >
                 <div>
-                  <p className="font-semibold text-green-900">
+                  <p className="font-semibold text-green-900 dark:text-green-300">
                     {sale.portfolio_items?.name ?? "Crop"} ·{" "}
                     {sale.quantity} {sale.unit}
                   </p>
-                  <p className="mt-0.5 text-[11px] text-gray-600">
-                    {sale.sale_date} · {formatINR(sale.total_amount)}
+                  <p className="mt-0.5 text-[11px] text-gray-600 dark:text-gray-400">
+                    <span className="font-mono">{sale.sale_date}</span> ·{" "}
+                    <AnimatedINR
+                      value={sale.total_amount ?? 0}
+                      className="text-[11px]"
+                    />
                   </p>
                 </div>
                 {typeof sale.price_vs_market === "number" && (
                   <span
                     className={`rounded-full px-2 py-0.5 text-[11px] font-medium ${
                       sale.price_vs_market >= 0
-                        ? "bg-green-50 text-green-800"
-                        : "bg-red-50 text-red-700"
+                        ? "bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400"
+                        : "bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400"
                     }`}
                   >
                     {sale.price_vs_market >= 0 ? "Above" : "Below"} market{" "}
                     {sale.price_vs_market.toFixed(1)}%
                   </span>
                 )}
-              </li>
+              </SpringCard>
             ))}
           </ul>
         )}

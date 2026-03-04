@@ -84,7 +84,7 @@ export default async function FinancesPage() {
   const portfolioItems = (portfolioItemsRaw as PortfolioItemsRow[] | null) ?? []
 
   return (
-    <div className="max-w-5xl p-4 md:p-8">
+    <div className="max-w-5xl p-4 md:p-8 bg-gray-50 dark:bg-gray-950 min-h-full">
       <FinancialOverview
         currentYear={currentYear}
         transactions={allTransactions}

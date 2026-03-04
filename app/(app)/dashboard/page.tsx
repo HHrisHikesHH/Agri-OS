@@ -2,6 +2,7 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 
 import { FarmSummaryCard } from "@/components/dashboard/FarmSummaryCard"
+import { ThemeToggle } from "@/components/ui/ThemeToggle"
 import { createClient } from "@/lib/supabase/server"
 import type {
   AssetsRow,
@@ -141,19 +142,24 @@ export default async function DashboardPage() {
   })
 
   return (
-    <div className="p-4 md:p-8">
-      <h1 className="text-2xl font-bold text-green-800">
-        Welcome back, {userData.name}! 🌾
-      </h1>
-      {profile ? (
-        <p className="mt-1 text-gray-600">
-          {profile.village}, {profile.district}
-        </p>
-      ) : null}
+    <div className="p-4 md:p-8 bg-gray-50 dark:bg-gray-950 min-h-full">
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-green-800 dark:text-green-400">
+            Welcome back, {userData.name}! 🌾
+          </h1>
+          {profile ? (
+            <p className="mt-1 text-gray-600 dark:text-gray-300">
+              {profile.village}, {profile.district}
+            </p>
+          ) : null}
+        </div>
+        <ThemeToggle size="sm" />
+      </div>
 
       {/* My Farm at a Glance */}
-      <section className="mt-6 space-y-4 rounded-xl border border-green-200 bg-green-50 p-4">
-        <h2 className="text-sm font-semibold text-green-800">
+      <section className="mt-6 space-y-4 rounded-xl border border-green-200 bg-green-50 dark:border-green-900 dark:bg-green-950/20 p-4">
+        <h2 className="text-sm font-semibold text-green-800 dark:text-green-400">
           My farm at a glance
         </h2>
         <div className="grid gap-4 md:grid-cols-4">
@@ -179,27 +185,29 @@ export default async function DashboardPage() {
 
       {/* Goals / profile snapshot */}
       <div className="mt-6 grid gap-4 md:grid-cols-2">
-        <div className="rounded-xl border bg-white p-4 shadow-sm">
-          <h2 className="text-sm font-semibold text-green-800">
+        <div className="rounded-xl border bg-white dark:bg-gray-900 dark:border-gray-800 p-4 shadow-sm dark:shadow-gray-950">
+          <h2 className="text-sm font-semibold text-green-800 dark:text-green-400">
             Farm goal (from onboarding)
           </h2>
-          <p className="mt-2 text-sm text-gray-700">
+          <p className="mt-2 text-sm text-gray-700 dark:text-gray-300">
             {profile?.primary_goal ?? "Not set yet."}
           </p>
         </div>
-        <div className="rounded-xl border bg-white p-4 shadow-sm">
-          <h2 className="text-sm font-semibold text-green-800">
+        <div className="rounded-xl border bg-white dark:bg-gray-900 dark:border-gray-800 p-4 shadow-sm dark:shadow-gray-950">
+          <h2 className="text-sm font-semibold text-green-800 dark:text-green-400">
             Risk appetite
           </h2>
-          <p className="mt-2 text-sm text-gray-700 capitalize">
+          <p className="mt-2 text-sm text-gray-700 dark:text-gray-300 capitalize">
             {profile?.risk_appetite ?? "Not set"}
           </p>
         </div>
       </div>
 
       {/* Quick actions */}
-      <section className="mt-6 rounded-xl border bg-white p-4 shadow-sm">
-        <h2 className="text-sm font-semibold text-green-800">Quick actions</h2>
+      <section className="mt-6 rounded-xl border bg-white dark:bg-gray-900 dark:border-gray-800 p-4 shadow-sm dark:shadow-gray-950">
+        <h2 className="text-sm font-semibold text-green-800 dark:text-green-400">
+          Quick actions
+        </h2>
         <div className="mt-3 flex flex-wrap gap-2">
           <QuickAction href="/finances" label="+ Log a sale" />
           <QuickAction href="/finances" label="+ Log expense" />
@@ -209,21 +217,21 @@ export default async function DashboardPage() {
       </section>
 
       {/* This season at a glance */}
-      <section className="mt-6 space-y-3 rounded-xl border bg-white p-4 shadow-sm">
-        <h2 className="text-sm font-semibold text-green-800">
+      <section className="mt-6 space-y-3 rounded-xl border bg-white dark:bg-gray-900 dark:border-gray-800 p-4 shadow-sm dark:shadow-gray-950">
+        <h2 className="text-sm font-semibold text-green-800 dark:text-green-400">
           This season at a glance
         </h2>
         {activeCycles.length === 0 ? (
-          <p className="text-xs text-gray-600">
+          <p className="text-xs text-gray-600 dark:text-gray-400">
             No active crop cycles yet. Plan your first cycle from the Crops
             section.
           </p>
         ) : (
           <>
-            <ul className="space-y-1 text-xs text-gray-700">
+            <ul className="space-y-1 text-xs text-gray-700 dark:text-gray-300">
               {activeCycles.map((cycle) => (
                 <li key={cycle.id}>
-                  <span className="font-semibold text-green-800">
+                  <span className="font-semibold text-green-800 dark:text-green-400">
                     {cycle.portfolio_items?.name ?? "Crop"}
                   </span>{" "}
                   · {cycle.area_acres ?? 0} acres ·{" "}
@@ -232,14 +240,14 @@ export default async function DashboardPage() {
               ))}
             </ul>
             {overdueTasksCount > 0 && (
-              <div className="mt-2 rounded-lg border border-red-200 bg-red-50 p-2 text-xs text-red-800">
+              <div className="mt-2 rounded-lg border border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-900/30 p-2 text-xs text-red-800 dark:text-red-400">
                 ⚠ {overdueTasksCount} task
                 {overdueTasksCount > 1 ? "s" : ""} overdue — review crop
                 details in the Crops section.
               </div>
             )}
             {nextTaskTitle && nextTaskDate && (
-              <p className="text-xs text-gray-700">
+              <p className="text-xs text-gray-700 dark:text-gray-300">
                 Next upcoming task:{" "}
                 <strong>{nextTaskTitle}</strong> on{" "}
                 <strong>{nextTaskDate}</strong>.
@@ -250,9 +258,9 @@ export default async function DashboardPage() {
       </section>
 
       {/* Market pulse & financial health */}
-      <section className="mt-6 space-y-3 rounded-xl border bg-white p-4 shadow-sm">
+      <section className="mt-6 space-y-3 rounded-xl border bg-white dark:bg-gray-900 dark:border-gray-800 p-4 shadow-sm dark:shadow-gray-950">
         <div className="flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-green-800">
+          <h2 className="text-sm font-semibold text-green-800 dark:text-green-400">
             Market pulse &amp; finances
           </h2>
           <Link
@@ -263,7 +271,7 @@ export default async function DashboardPage() {
           </Link>
         </div>
         {transactions.length === 0 ? (
-          <p className="pt-2 text-xs text-gray-600">
+            <p className="pt-2 text-xs text-gray-600 dark:text-gray-400">
             No financial activity recorded yet. Use the Finances section to log
             your first sale or expense.
           </p>
@@ -282,23 +290,31 @@ export default async function DashboardPage() {
 
               return (
                 <div className="mt-3 grid gap-3 md:grid-cols-3">
-                  <div className="rounded-lg border bg-green-50 p-3 text-xs">
-                    <p className="text-[11px] text-gray-600">Revenue</p>
-                    <p className="mt-1 text-base font-bold text-green-800">
+                  <div className="rounded-lg border bg-green-50 dark:bg-green-950/20 dark:border-green-900 p-3 text-xs">
+                    <p className="text-[11px] text-gray-600 dark:text-gray-400">
+                      Revenue
+                    </p>
+                    <p className="mt-1 text-base font-bold text-green-800 dark:text-green-400">
                       {formatINR(revenue)}
                     </p>
                   </div>
-                  <div className="rounded-lg border bg-red-50 p-3 text-xs">
-                    <p className="text-[11px] text-gray-600">Expenses</p>
-                    <p className="mt-1 text-base font-bold text-red-700">
+                  <div className="rounded-lg border bg-red-50 dark:bg-red-900/30 dark:border-red-900 p-3 text-xs">
+                    <p className="text-[11px] text-gray-600 dark:text-gray-400">
+                      Expenses
+                    </p>
+                    <p className="mt-1 text-base font-bold text-red-700 dark:text-red-400">
                       {formatINR(expenses)}
                     </p>
                   </div>
-                  <div className="rounded-lg border bg-gray-50 p-3 text-xs">
-                    <p className="text-[11px] text-gray-600">Net position</p>
+                  <div className="rounded-lg border bg-gray-50 dark:bg-gray-800 dark:border-gray-700 p-3 text-xs">
+                    <p className="text-[11px] text-gray-600 dark:text-gray-400">
+                      Net position
+                    </p>
                     <p
                       className={`mt-1 text-base font-bold ${
-                        net >= 0 ? "text-green-700" : "text-red-700"
+                        net >= 0
+                          ? "text-green-700 dark:text-green-400"
+                          : "text-red-700 dark:text-red-400"
                       }`}
                     >
                       {formatINR(net)}
@@ -307,8 +323,8 @@ export default async function DashboardPage() {
                 </div>
               )
             })()}
-            <div className="mt-3 rounded-lg border bg-gray-50 p-2 text-[11px]">
-              <p className="mb-1 font-semibold text-gray-800">
+            <div className="mt-3 rounded-lg border bg-gray-50 dark:bg-gray-800 dark:border-gray-700 p-2 text-[11px]">
+              <p className="mb-1 font-semibold text-gray-800 dark:text-gray-100">
                 Recent activity
               </p>
               <ul className="space-y-1">
@@ -321,14 +337,14 @@ export default async function DashboardPage() {
                       key={t.id}
                       className="flex items-center justify-between"
                     >
-                      <span className="text-gray-700">
+                      <span className="text-gray-700 dark:text-gray-300">
                         {t.date} · {t.category}
                       </span>
                       <span
                         className={
                           t.type === "income"
-                            ? "font-semibold text-green-700"
-                            : "font-semibold text-red-700"
+                            ? "font-semibold text-green-700 dark:text-green-400"
+                            : "font-semibold text-red-700 dark:text-red-400"
                         }
                       >
                         {formatINR(t.amount ?? 0)}

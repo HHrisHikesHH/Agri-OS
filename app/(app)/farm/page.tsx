@@ -59,14 +59,16 @@ export default async function FarmPage() {
     plots?.reduce((sum, p) => sum + (p.area_acres ?? 0), 0) ?? 0
 
   return (
-    <div className="max-w-4xl p-4 md:p-8">
-      <h1 className="text-2xl font-bold text-green-800">🌿 My Farm</h1>
+    <div className="max-w-4xl p-4 md:p-8 bg-gray-50 dark:bg-gray-950 min-h-full">
+      <h1 className="text-2xl font-bold text-green-800 dark:text-green-400">
+        🌿 My Farm
+      </h1>
       {farmProfile ? (
-        <p className="mt-1 text-gray-500">
+        <p className="mt-1 text-gray-500 dark:text-gray-400">
           {farmProfile.village}, {farmProfile.taluk}, {farmProfile.district}
         </p>
       ) : (
-        <p className="mt-1 text-sm text-gray-500">
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
           Complete onboarding to add your farm profile.
         </p>
       )}
@@ -99,7 +101,7 @@ export default async function FarmPage() {
       </div>
 
       {farmProfile?.total_acres && totalPlotAcres < farmProfile.total_acres && (
-        <div className="mt-4 rounded-xl border border-yellow-200 bg-yellow-50 p-4 text-sm text-yellow-800">
+        <div className="mt-4 rounded-xl border border-yellow-200 bg-yellow-50 dark:border-yellow-900 dark:bg-yellow-900/30 p-4 text-sm text-yellow-800 dark:text-yellow-400">
           ⚠️{" "}
           {(farmProfile.total_acres - totalPlotAcres).toFixed(1)} acres not yet
           mapped to plots.
@@ -161,10 +163,10 @@ function StatCard({
   }
 
   return (
-    <div className="rounded-xl border bg-white p-4 shadow-sm">
-      <p className="text-xs text-gray-500">{label}</p>
+    <div className="rounded-xl border bg-white dark:bg-gray-900 dark:border-gray-800 p-4 shadow-sm dark:shadow-gray-950">
+      <p className="text-xs text-gray-500 dark:text-gray-400">{label}</p>
       <p className={`mt-1 text-2xl font-bold ${colors[color]}`}>{value}</p>
-      <p className="text-xs text-gray-400">{unit}</p>
+      <p className="text-xs text-gray-400 dark:text-gray-500">{unit}</p>
     </div>
   )
 }
@@ -187,12 +189,14 @@ function SectionCard({
   return (
     <Link
       href={href}
-      className="rounded-xl border bg-white p-5 shadow-sm transition-all hover:border-green-400 hover:shadow-md"
+      className="rounded-xl border bg-white dark:bg-gray-900 dark:border-gray-800 p-5 shadow-sm dark:shadow-gray-950 transition-all hover:border-green-400 hover:shadow-md"
     >
       <div className="mb-2 text-3xl">{icon}</div>
-      <h3 className="font-semibold text-gray-800">{title}</h3>
-      <p className="mt-1 text-sm text-gray-500">{description}</p>
-      <p className="mt-3 text-sm font-medium text-green-700">
+      <h3 className="font-semibold text-gray-800 dark:text-gray-200">{title}</h3>
+      <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
+        {description}
+      </p>
+      <p className="mt-3 text-sm font-medium text-green-700 dark:text-green-400">
         {count} {countLabel}
       </p>
     </Link>

@@ -1,6 +1,7 @@
 'use client'
 
 import { useMemo, useState } from "react"
+import { useTheme } from "next-themes"
 import { Cell, Pie, PieChart, Tooltip } from "recharts"
 
 import type { TransactionsRow } from "@/lib/types/database.types"
@@ -22,6 +23,15 @@ const COLORS = [
 ]
 
 export function ExpensesView({ expenses }: Props) {
+  const { resolvedTheme } = useTheme()
+  const isDark = resolvedTheme === "dark"
+
+  const chartColors = {
+    tooltipBg: isDark ? "#111827" : "#ffffff",
+    tooltipBorder: isDark ? "#374151" : "#e5e7eb",
+    tooltipText: isDark ? "#f3f4f6" : "#111827",
+  }
+
   const [categoryFilter, setCategoryFilter] = useState<string>("all")
 
   const breakdown = useMemo(() => {
@@ -46,12 +56,12 @@ export function ExpensesView({ expenses }: Props) {
   return (
     <div className="space-y-6 text-xs">
       <div className="grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,2fr)]">
-        <div className="flex flex-col items-center justify-center rounded-xl border bg-white p-4 shadow-sm">
-          <h2 className="mb-2 text-sm font-semibold text-green-800">
+        <div className="flex flex-col items-center justify-center rounded-xl border bg-white dark:bg-gray-900 dark:border-gray-800 p-4 shadow-sm dark:shadow-gray-950">
+          <h2 className="mb-2 text-sm font-semibold text-green-800 dark:text-green-400">
             Expense breakdown by category
           </h2>
           {breakdown.length === 0 ? (
-            <p className="py-4 text-center text-xs text-gray-400">
+            <p className="py-4 text-center text-xs text-gray-400 dark:text-gray-500">
               No expenses recorded yet.
             </p>
           ) : (
@@ -79,22 +89,29 @@ export function ExpensesView({ expenses }: Props) {
                   )
                   return `${formatINR(numericValue)} (${percentage}%)`
                 }}
+                contentStyle={{
+                  backgroundColor: chartColors.tooltipBg,
+                  border: `1px solid ${chartColors.tooltipBorder}`,
+                  borderRadius: 12,
+                  color: chartColors.tooltipText,
+                  fontSize: 11,
+                }}
               />
             </PieChart>
           )}
           {total > 0 && (
-            <p className="mt-2 text-[11px] text-gray-600">
+            <p className="mt-2 text-[11px] text-gray-600 dark:text-gray-400">
               Total expenses: <span className="font-semibold">{formatINR(total)}</span>
             </p>
           )}
         </div>
-        <div className="rounded-xl border bg-white p-4 shadow-sm">
+        <div className="rounded-xl border bg-white dark:bg-gray-900 dark:border-gray-800 p-4 shadow-sm dark:shadow-gray-950">
           <div className="mb-3 flex items-center justify-between gap-2">
-            <h2 className="text-sm font-semibold text-green-800">
+            <h2 className="text-sm font-semibold text-green-800 dark:text-green-400">
               Expense list
             </h2>
             <select
-              className="rounded-md border bg-white px-2 py-1 text-[11px]"
+              className="rounded-md border bg-white dark:bg-gray-800 dark:border-gray-700 px-2 py-1 text-[11px] text-gray-700 dark:text-gray-100"
               value={categoryFilter}
               onChange={(e) => setCategoryFilter(e.target.value)}
             >
@@ -108,7 +125,7 @@ export function ExpensesView({ expenses }: Props) {
           </div>
           <div className="max-h-80 space-y-1 overflow-y-auto pr-1">
             {filteredExpenses.length === 0 ? (
-              <p className="py-4 text-center text-xs text-gray-400">
+              <p className="py-4 text-center text-xs text-gray-400 dark:text-gray-500">
                 No expenses found for this filter.
               </p>
             ) : (
@@ -118,13 +135,13 @@ export function ExpensesView({ expenses }: Props) {
                 .map((e) => (
                   <div
                     key={e.id}
-                    className="flex items-center justify-between rounded-lg border border-gray-100 bg-gray-50 px-2 py-1.5"
+                    className="flex items-center justify-between rounded-lg border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 px-2 py-1.5"
                   >
                     <div>
-                      <p className="font-medium text-gray-800">
+                      <p className="font-medium text-gray-800 dark:text-gray-100">
                         {e.category}
                       </p>
-                      <p className="text-[10px] text-gray-500">
+                      <p className="text-[10px] text-gray-500 dark:text-gray-400">
                         {e.date} · {e.description ?? "No description"}
                       </p>
                     </div>

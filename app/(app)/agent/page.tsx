@@ -59,7 +59,7 @@ export default async function AgentPage() {
     (recsRaw as AgentRecommendationsRow[] | null) ?? []
 
   return (
-    <div className="flex h-[calc(100vh-64px)] flex-col md:h-screen">
+    <div className="flex h-[calc(100vh-64px)] flex-col md:h-screen bg-white dark:bg-gray-950">
       <AgentChat
         recentInteractions={interactions}
         unreadAlerts={unreadAlerts}

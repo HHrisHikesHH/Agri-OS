@@ -1,9 +1,10 @@
-'use client'
+"use client"
 
 import { useEffect, useMemo, useState, useTransition } from "react"
 
 import { logSale } from "@/app/(app)/finances/actions"
-import { Button } from "@/components/ui/button"
+import { triggerSaleConfetti } from "@/components/ui/SaleConfetti"
+import { PressButton } from "@/components/ui/PressButton"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
@@ -100,6 +101,7 @@ export function AddSaleForm({
         setFormState({ error: result.error })
         return
       }
+      triggerSaleConfetti(totalAmount)
       setFormState({
         success: true,
         summary: {
@@ -121,7 +123,7 @@ export function AddSaleForm({
         </p>
       )}
       {formState.success && formState.summary && (
-        <div className="space-y-1 rounded-xl border border-green-200 bg-green-50 p-3 text-xs text-green-900">
+        <div className="space-y-1 rounded-xl border border-green-200 dark:border-green-900 bg-green-50 dark:bg-green-950/20 p-3 text-xs text-green-900 dark:text-green-300 glow-pulse">
           <p className="font-semibold">✅ Sale recorded!</p>
           <p>
             Sold: {formState.summary.quantity} {formState.summary.unit}{" "}
@@ -139,7 +141,7 @@ export function AddSaleForm({
             </p>
           )}
           {formState.summary.priceVsMarket == null && (
-            <p className="mt-1 text-[11px] text-green-800">
+            <p className="mt-1 text-[11px] text-green-800 dark:text-green-400">
               No market data available for that day.
             </p>
           )}
@@ -239,7 +241,7 @@ export function AddSaleForm({
           </div>
           <div className="space-y-1.5">
             <Label>Total amount</Label>
-            <div className="rounded-lg bg-green-50 px-2 py-1 text-xs font-semibold text-green-800">
+            <div className="rounded-lg bg-green-50 dark:bg-green-950/20 px-2 py-1 text-xs font-semibold text-green-800 dark:text-green-300 font-mono">
               {totalAmount > 0
                 ? `You'll receive ${formatINR(totalAmount)}`
                 : "—"}
@@ -320,13 +322,15 @@ export function AddSaleForm({
         />
       </section>
 
-      <Button
+      <PressButton
         type="submit"
-        className="w-full bg-green-700 text-white hover:bg-green-800 md:w-auto"
-        disabled={isPending}
+        fullWidth
+        loading={isPending}
+        successMessage="Saved"
+        className="md:w-auto"
       >
-        {isPending ? "Recording..." : "Record sale"}
-      </Button>
+        Record sale
+      </PressButton>
     </form>
   )
 }

@@ -84,15 +84,15 @@ export default async function MarketPage() {
 
   return (
     <div className="max-w-5xl p-4 md:p-8">
-      <h1 className="text-2xl font-bold text-green-800">
+      <h1 className="text-2xl font-bold text-green-800 dark:text-green-400">
         📊 Market Intelligence
       </h1>
-      <p className="mt-1 text-sm text-gray-500">
+      <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
         Live prices, trends and alerts for your crops.
       </p>
 
       {triggered.length > 0 && (
-        <section className="mt-4 rounded-xl border border-yellow-200 bg-yellow-50 p-3 text-xs text-yellow-900">
+        <section className="mt-4 rounded-xl border border-yellow-200 bg-yellow-50 dark:border-yellow-900 dark:bg-yellow-900/30 p-3 text-xs text-yellow-900 dark:text-yellow-400">
           <p className="mb-1 font-semibold">
             Price alerts triggered today
           </p>
@@ -109,12 +109,12 @@ export default async function MarketPage() {
 
       <section className="mt-6">
         <div className="mb-3 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-green-800">
+          <h2 className="text-sm font-semibold text-green-800 dark:text-green-400">
             Your crops — latest mandi prices
           </h2>
           <Link
             href="/market/prices"
-            className="text-xs font-medium text-green-700 hover:underline"
+            className="text-xs font-medium text-green-700 dark:text-green-400 hover:underline"
           >
             View all →
           </Link>
@@ -128,7 +128,7 @@ export default async function MarketPage() {
       </section>
 
       <section className="mt-8">
-        <h2 className="mb-3 text-sm font-semibold text-green-800">
+        <h2 className="mb-3 text-sm font-semibold text-green-800 dark:text-green-400">
           🌤️ Weather — Kalaburagi region
         </h2>
         <WeatherWidget />
@@ -163,14 +163,16 @@ function NavCard({
   return (
     <a
       href={href}
-      className="flex items-center justify-between rounded-xl border bg-white p-3 text-xs shadow-sm hover:border-green-400 hover:shadow-md"
+      className="flex items-center justify-between rounded-xl border bg-white dark:bg-gray-900 dark:border-gray-800 p-3 text-xs shadow-sm dark:shadow-gray-950 hover:border-green-400 hover:shadow-md"
     >
       <div className="flex items-center gap-2">
         <span className="text-lg">{icon}</span>
-        <span className="font-semibold text-gray-800">{label}</span>
+        <span className="font-semibold text-gray-800 dark:text-gray-100">
+          {label}
+        </span>
       </div>
       {typeof count === "number" && (
-        <span className="rounded-full bg-green-50 px-2 py-0.5 text-[10px] text-green-800">
+        <span className="rounded-full bg-green-50 dark:bg-green-950/20 text-[10px] text-green-800 dark:text-green-400 px-2 py-0.5">
           {count}
         </span>
       )}

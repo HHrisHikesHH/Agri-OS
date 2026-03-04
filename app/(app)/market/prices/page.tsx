@@ -50,22 +50,22 @@ export default async function MarketPricesPage() {
   const hasToday = prices.some((p) => p.price_date === today)
 
   return (
-    <div className="max-w-5xl p-4 md:p-8">
+    <div className="max-w-5xl p-4 md:p-8 bg-gray-50 dark:bg-gray-950 min-h-full">
       <div className="flex items-center justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-bold text-green-800">
+          <h1 className="text-2xl font-bold text-green-800 dark:text-green-400">
             💹 Mandi prices
           </h1>
-          <p className="mt-1 text-sm text-gray-500">
+          <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
             Latest mandi prices for your portfolio crops.
           </p>
         </div>
         {!hasToday && <SyncPricesButton />}
       </div>
 
-      <div className="mt-6 overflow-x-auto rounded-xl border bg-white text-xs shadow-sm">
+      <div className="mt-6 overflow-x-auto rounded-xl border bg-white dark:bg-gray-900 dark:border-gray-800 text-xs shadow-sm dark:shadow-gray-950">
         <table className="min-w-full table-fixed border-collapse">
-          <thead className="bg-green-50 text-left text-[11px] text-gray-600">
+          <thead className="bg-green-50 dark:bg-gray-800 text-left text-[11px] text-gray-600 dark:text-gray-300">
             <tr>
               <th className="px-3 py-2">Commodity</th>
               <th className="px-3 py-2">Mandi</th>
@@ -79,32 +79,32 @@ export default async function MarketPricesPage() {
           <tbody>
             {prices.map((p) => (
               <tr key={`${p.commodity}-${p.mandi_name}-${p.price_date}`}>
-                <td className="px-3 py-2 text-gray-800">
+                <td className="px-3 py-2 text-gray-800 dark:text-gray-200">
                   <a
                     href={`/market/prices/${encodeURIComponent(
                       p.commodity,
                     )}`}
-                    className="font-semibold text-green-800 hover:underline"
+                    className="font-semibold text-green-800 dark:text-green-400 hover:underline"
                   >
                     {p.commodity}
                   </a>
                 </td>
-                <td className="px-3 py-2 text-gray-700">
+                <td className="px-3 py-2 text-gray-700 dark:text-gray-300">
                   {p.mandi_name}
                 </td>
-                <td className="px-3 py-2 text-gray-700">
+                <td className="px-3 py-2 text-gray-700 dark:text-gray-300">
                   {p.district}
                 </td>
-                <td className="px-3 py-2 text-gray-700">
+                <td className="px-3 py-2 text-gray-700 dark:text-gray-300">
                   {p.price_date}
                 </td>
-                <td className="px-3 py-2 text-right text-gray-700">
+                <td className="px-3 py-2 text-right text-gray-700 dark:text-gray-300">
                   {p.min_price}
                 </td>
-                <td className="px-3 py-2 text-right font-semibold text-green-800">
+                <td className="px-3 py-2 text-right font-semibold text-green-800 dark:text-green-400">
                   {p.modal_price}
                 </td>
-                <td className="px-3 py-2 text-right text-gray-700">
+                <td className="px-3 py-2 text-right text-gray-700 dark:text-gray-300">
                   {p.max_price}
                 </td>
               </tr>
@@ -113,7 +113,7 @@ export default async function MarketPricesPage() {
               <tr>
                 <td
                   colSpan={7}
-                  className="px-3 py-4 text-center text-gray-500"
+                  className="px-3 py-4 text-center text-gray-500 dark:text-gray-400"
                 >
                   No market price data yet. Use &quot;Sync prices
                   now&quot; to fetch latest prices.

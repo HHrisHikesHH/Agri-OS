@@ -100,28 +100,32 @@ export default async function CommodityPricesPage({
   const advice = getSellWindowAdvice(commodityKey, currentMonth)
 
   return (
-    <div className="max-w-5xl p-4 md:p-8">
-      <h1 className="text-2xl font-bold text-green-800">
+    <div className="max-w-5xl p-4 md:p-8 bg-gray-50 dark:bg-gray-950 min-h-full">
+      <h1 className="text-2xl font-bold text-green-800 dark:text-green-400">
         {commodityName} prices
       </h1>
-      <p className="mt-1 text-sm text-gray-500">
+      <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
         90-day mandi price history and simple sell window analysis.
       </p>
 
-      <section className="mt-6 grid gap-4 rounded-xl border bg-white p-4 text-xs shadow-sm md:grid-cols-4">
+      <section className="mt-6 grid gap-4 rounded-xl border bg-white dark:bg-gray-900 dark:border-gray-800 p-4 text-xs shadow-sm dark:shadow-gray-950 md:grid-cols-4">
         <div>
-          <p className="text-[11px] text-gray-500">Current modal</p>
-          <p className="mt-1 text-lg font-bold text-green-800">
+          <p className="text-[11px] text-gray-500 dark:text-gray-400">
+            Current modal
+          </p>
+          <p className="mt-1 text-lg font-bold text-green-800 dark:text-green-400">
             {latest ? `${latest.modal_price} / qtl` : "—"}
           </p>
         </div>
         <div>
-          <p className="text-[11px] text-gray-500">
+          <p className="text-[11px] text-gray-500 dark:text-gray-400">
             7-day change
           </p>
           <p
             className={`mt-1 text-lg font-bold ${
-              change7 >= 0 ? "text-green-700" : "text-red-700"
+              change7 >= 0
+                ? "text-green-700 dark:text-green-400"
+                : "text-red-700 dark:text-red-400"
             }`}
           >
             {change7 >= 0 ? "+" : ""}
@@ -129,12 +133,14 @@ export default async function CommodityPricesPage({
           </p>
         </div>
         <div>
-          <p className="text-[11px] text-gray-500">
+          <p className="text-[11px] text-gray-500 dark:text-gray-400">
             30-day change
           </p>
           <p
             className={`mt-1 text-lg font-bold ${
-              change30 >= 0 ? "text-green-700" : "text-red-700"
+              change30 >= 0
+                ? "text-green-700 dark:text-green-400"
+                : "text-red-700 dark:text-red-400"
             }`}
           >
             {change30 >= 0 ? "+" : ""}
@@ -145,7 +151,7 @@ export default async function CommodityPricesPage({
           <p className="text-[11px] text-gray-500">
             Range (90 days)
           </p>
-          <p className="mt-1 text-sm font-semibold text-gray-800">
+          <p className="mt-1 text-sm font-semibold text-gray-800 dark:text-gray-200">
             {low !== Number.POSITIVE_INFINITY
               ? `${low.toFixed(0)} – ${high.toFixed(0)}`
               : "—"}
@@ -153,21 +159,21 @@ export default async function CommodityPricesPage({
         </div>
       </section>
 
-      <section className="mt-6 rounded-xl border bg-white p-4 text-xs shadow-sm">
-        <h2 className="mb-2 text-sm font-semibold text-green-800">
+      <section className="mt-6 rounded-xl border bg-white dark:bg-gray-900 dark:border-gray-800 p-4 text-xs shadow-sm dark:shadow-gray-950">
+        <h2 className="mb-2 text-sm font-semibold text-green-800 dark:text-green-400">
           Price history (₹/qtl)
         </h2>
         <PriceHistoryChart data={history} />
       </section>
 
-      <section className="mt-6 rounded-xl border bg-white p-4 text-xs shadow-sm">
-        <h2 className="mb-2 text-sm font-semibold text-green-800">
+      <section className="mt-6 rounded-xl border bg-white dark:bg-gray-900 dark:border-gray-800 p-4 text-xs shadow-sm dark:shadow-gray-950">
+        <h2 className="mb-2 text-sm font-semibold text-green-800 dark:text-green-400">
           Mandi comparison
         </h2>
         <MandiComparison history={history} today={today} />
       </section>
 
-      <section className="mt-6 rounded-xl border bg-white p-4 text-xs shadow-sm">
+      <section className="mt-6 rounded-xl border bg-white dark:bg-gray-900 dark:border-gray-800 p-4 text-xs shadow-sm dark:shadow-gray-950">
         <SellWindowIndicator
           commodityName={commodityName}
           advice={advice}

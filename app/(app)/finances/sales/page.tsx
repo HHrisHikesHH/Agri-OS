@@ -70,28 +70,34 @@ export default async function SalesPage() {
       : null
 
   return (
-    <div className="max-w-5xl p-4 md:p-8">
-      <h1 className="text-2xl font-bold text-green-800">📜 Sales log</h1>
-      <p className="mt-1 text-sm text-gray-500">
+    <div className="max-w-5xl p-4 md:p-8 bg-gray-50 dark:bg-gray-950 min-h-full">
+      <h1 className="text-2xl font-bold text-green-800 dark:text-green-400">
+        📜 Sales log
+      </h1>
+      <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
         See how your selling decisions compare to the market.
       </p>
 
-      <section className="mt-6 grid gap-4 rounded-xl border bg-white p-4 text-sm shadow-sm md:grid-cols-3">
+      <section className="mt-6 grid gap-4 rounded-xl border bg-white dark:bg-gray-900 dark:border-gray-800 p-4 text-sm shadow-sm dark:shadow-gray-950 md:grid-cols-3">
         <div>
-          <p className="text-xs text-gray-500">Total sales recorded</p>
-          <p className="mt-1 text-lg font-bold text-green-800">
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Total sales recorded
+          </p>
+          <p className="mt-1 text-lg font-bold text-green-800 dark:text-green-400">
             {formatINR(totalSeasonSales)}
           </p>
         </div>
         <div>
-          <p className="text-xs text-gray-500">Average vs market</p>
-          <p className="mt-1 text-lg font-bold">
+          <p className="text-xs text-gray-500 dark:text-gray-400">
+            Average vs market
+          </p>
+          <p className="mt-1 text-lg font-bold text-gray-900 dark:text-gray-100">
             {avgVsMarket != null
               ? `${avgVsMarket >= 0 ? "+" : ""}${avgVsMarket.toFixed(1)}%`
               : "No market data"}
           </p>
         </div>
-        <div className="space-y-1 text-xs text-gray-700">
+        <div className="space-y-1 text-xs text-gray-700 dark:text-gray-300">
           {bestSale && (
             <p>
               Best sale:{" "}
@@ -112,9 +118,11 @@ export default async function SalesPage() {
       </section>
 
       <section className="mt-6 space-y-3">
-        <h2 className="text-sm font-semibold text-green-800">All sales</h2>
+        <h2 className="text-sm font-semibold text-green-800 dark:text-green-400">
+          All sales
+        </h2>
         {sales.length === 0 ? (
-          <p className="py-4 text-center text-xs text-gray-400">
+          <p className="py-4 text-center text-xs text-gray-400 dark:text-gray-500">
             No sales recorded yet.
           </p>
         ) : (

@@ -1,17 +1,22 @@
 import type { Metadata, Viewport } from "next"
-import { Geist, Geist_Mono } from "next/font/google"
+import { JetBrains_Mono, Sora } from "next/font/google"
 
 import "./globals.css"
 import { ServiceWorkerRegistration } from "@/components/pwa/ServiceWorkerRegistration"
+import { ThemeProvider } from "@/components/providers/ThemeProvider"
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const sora = Sora({
+  variable: "--font-sora",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700", "800"],
+  display: "swap",
 })
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const jetbrains = JetBrains_Mono({
+  variable: "--font-mono",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
+  display: "swap",
 })
 
 export const metadata: Metadata = {
@@ -43,16 +48,20 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html
+      lang="en"
+      suppressHydrationWarning
+      className={`${sora.variable} ${jetbrains.variable}`}
+    >
       <head>
         <link rel="apple-touch-icon" href="/icons/icon-192.png" />
         <meta name="apple-mobile-web-app-capable" content="yes" />
       </head>
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} bg-green-50 antialiased`}
-      >
-        {children}
-        <ServiceWorkerRegistration />
+      <body className="antialiased">
+        <ThemeProvider>
+          {children}
+          <ServiceWorkerRegistration />
+        </ThemeProvider>
       </body>
     </html>
   )

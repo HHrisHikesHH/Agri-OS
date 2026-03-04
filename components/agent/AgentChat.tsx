@@ -276,13 +276,13 @@ export function AgentChat({
 
   return (
     <div className="flex h-full flex-col md:flex-row">
-      <aside className="hidden w-80 flex-shrink-0 flex-col gap-3 border-r border-green-100 bg-green-50/60 p-4 md:flex">
+      <aside className="hidden w-80 flex-shrink-0 flex-col gap-3 border-r border-green-100 dark:border-green-900 bg-green-50/60 dark:bg-gray-950 p-4 md:flex">
         <div className="mb-2 flex items-center justify-between">
-          <h2 className="text-sm font-semibold text-green-900">
+          <h2 className="text-sm font-semibold text-green-900 dark:text-green-400">
             🌾 Agri OS Agent
           </h2>
           {skillLabel && (
-            <span className="rounded-full bg-white px-2 py-0.5 text-[10px] text-green-800">
+            <span className="rounded-full bg-white dark:bg-gray-900 px-2 py-0.5 text-[10px] text-green-800 dark:text-green-300">
               {skillLabel}
             </span>
           )}
@@ -291,7 +291,7 @@ export function AgentChat({
           type="button"
           onClick={refreshContext}
           disabled={isRefreshingContext}
-          className="mb-2 inline-flex items-center justify-center rounded-full border border-green-300 bg-white px-3 py-1 text-[11px] font-medium text-green-800 hover:bg-green-100"
+          className="mb-2 inline-flex items-center justify-center rounded-full border border-green-300 dark:border-green-900 bg-white dark:bg-gray-900 px-3 py-1 text-[11px] font-medium text-green-800 dark:text-green-300 hover:bg-green-100 dark:hover:bg-green-900/40"
         >
           {isRefreshingContext ? "Refreshing…" : "Refresh farm context"}
         </button>
@@ -308,14 +308,14 @@ export function AgentChat({
         )}
       </aside>
 
-      <main className="flex flex-1 flex-col bg-white">
-        <div className="flex items-center justify-between border-b border-green-100 px-4 py-2 md:hidden">
+      <main className="flex flex-1 flex-col bg-white dark:bg-gray-950">
+        <div className="flex items-center justify-between border-b border-green-100 dark:border-green-900 px-4 py-2 md:hidden">
           <div>
-            <p className="text-sm font-semibold text-green-900">
+            <p className="text-sm font-semibold text-green-900 dark:text-green-400">
               🌾 Agri OS Agent
             </p>
             {skillLabel && (
-              <p className="text-[11px] text-gray-600">
+              <p className="text-[11px] text-gray-600 dark:text-gray-400">
                 {skillLabel}
               </p>
             )}
@@ -324,7 +324,7 @@ export function AgentChat({
             type="button"
             onClick={refreshContext}
             disabled={isRefreshingContext}
-            className="rounded-full border border-green-300 bg-green-50 px-3 py-1 text-[11px] font-medium text-green-800"
+            className="rounded-full border border-green-300 dark:border-green-900 bg-green-50 dark:bg-green-950/20 px-3 py-1 text-[11px] font-medium text-green-800 dark:text-green-300"
           >
             {isRefreshingContext ? "Refreshing…" : "Refresh context"}
           </button>
@@ -339,7 +339,7 @@ export function AgentChat({
           )}
           <div className="space-y-3">
             {isLoadingHistory && (
-              <p className="text-[11px] text-gray-400">
+              <p className="text-[11px] text-gray-400 dark:text-gray-500">
                 Loading earlier messages…
               </p>
             )}
@@ -352,7 +352,7 @@ export function AgentChat({
               />
             ))}
             {isStreaming && (
-              <p className="text-[11px] text-gray-400">
+              <p className="text-[11px] text-gray-400 dark:text-gray-500">
                 Agent is thinking…
               </p>
             )}
@@ -360,7 +360,7 @@ export function AgentChat({
           </div>
         </div>
 
-        <div className="border-t border-green-100 px-4 py-3">
+        <div className="border-t border-green-100 dark:border-green-900 bg-white dark:bg-gray-950 px-4 py-3">
           <AgentInput
             onSend={sendMessage}
             disabled={isStreaming}

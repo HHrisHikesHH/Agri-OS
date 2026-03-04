@@ -54,39 +54,41 @@ export default async function PlotDetailPage({ params }: PlotDetailPageProps) {
   const waterSources = plot.water_sources ?? []
 
   return (
-    <div className="max-w-4xl p-4 md:p-8">
-      <h1 className="text-2xl font-bold text-green-800">{plot.name}</h1>
-      <p className="mt-1 text-sm text-gray-600">
+    <div className="max-w-4xl p-4 md:p-8 bg-gray-50 dark:bg-gray-950 min-h-full">
+      <h1 className="text-2xl font-bold text-green-800 dark:text-green-400">
+        {plot.name}
+      </h1>
+      <p className="mt-1 text-sm text-gray-600 dark:text-gray-400">
         {plot.area_acres} acres · {plot.soil_type || "Soil type not set"} ·{" "}
         {plot.irrigation_type || "Irrigation not set"}
       </p>
 
       <div className="mt-6 grid gap-6 md:grid-cols-[minmax(0,2fr)_minmax(0,1.5fr)]">
         {/* Section A — Plot details */}
-        <section className="space-y-4 rounded-xl border bg-white p-4 shadow-sm">
-          <h2 className="text-sm font-semibold text-green-800">
+        <section className="space-y-4 rounded-xl border bg-white dark:bg-gray-900 dark:border-gray-800 p-4 shadow-sm dark:shadow-gray-950">
+          <h2 className="text-sm font-semibold text-green-800 dark:text-green-400">
             Plot details
           </h2>
           <EditPlotForm plot={plot} />
         </section>
 
         {/* Section B — Water sources */}
-        <section className="space-y-4 rounded-xl border bg-white p-4 shadow-sm">
+        <section className="space-y-4 rounded-xl border bg-white dark:bg-gray-900 dark:border-gray-800 p-4 shadow-sm dark:shadow-gray-950">
           <div className="flex items-center justify-between gap-2">
-            <h2 className="text-sm font-semibold text-green-800">
+            <h2 className="text-sm font-semibold text-green-800 dark:text-green-400">
               Water sources
             </h2>
             {waterSources.length > 0 && (
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-gray-500 dark:text-gray-400">
                 {waterSources.length} source
                 {waterSources.length > 1 ? "s" : ""} mapped
               </p>
             )}
           </div>
 
-          <div className="space-y-3">
+            <div className="space-y-3">
             {waterSources.length === 0 ? (
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-gray-500 dark:text-gray-400">
                 No water sources mapped yet. Add borewells, ponds, or canals so
                 Agri OS can reason about water risk.
               </p>
@@ -94,17 +96,17 @@ export default async function PlotDetailPage({ params }: PlotDetailPageProps) {
               waterSources.map((source) => (
                 <div
                   key={source.id}
-                  className="flex items-start justify-between gap-3 rounded-lg border border-green-100 bg-green-50/60 p-3 text-sm"
+                  className="flex items-start justify-between gap-3 rounded-lg border border-green-100 dark:border-green-900 bg-green-50/60 dark:bg-green-950/20 p-3 text-sm"
                 >
                   <div>
-                    <p className="font-medium text-green-900">
+                    <p className="font-medium text-green-900 dark:text-green-300">
                       {source.type || "Water source"}
                     </p>
-                    <p className="mt-0.5 text-xs text-gray-600">
+                    <p className="mt-0.5 text-xs text-gray-600 dark:text-gray-400">
                       Reliability: {source.reliability || "Unknown"}
                     </p>
                     {(source.depth_ft || source.motor_hp) && (
-                      <p className="mt-0.5 text-xs text-gray-600">
+                      <p className="mt-0.5 text-xs text-gray-600 dark:text-gray-400">
                         {source.depth_ft
                           ? `Depth: ${source.depth_ft} ft`
                           : null}
@@ -118,7 +120,7 @@ export default async function PlotDetailPage({ params }: PlotDetailPageProps) {
             )}
           </div>
 
-          <div className="mt-2 border-t border-green-100 pt-3">
+          <div className="mt-2 border-t border-green-100 dark:border-green-900 pt-3">
             <WaterSourceForm plotId={plot.id} />
           </div>
         </section>

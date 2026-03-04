@@ -51,11 +51,11 @@ export default async function TransactionsPage() {
     })[] | null) ?? []
 
   return (
-    <div className="max-w-5xl p-4 md:p-8">
-      <h1 className="text-2xl font-bold text-green-800">
+    <div className="max-w-5xl p-4 md:p-8 bg-gray-50 dark:bg-gray-950 min-h-full">
+      <h1 className="text-2xl font-bold text-green-800 dark:text-green-400">
         📋 Transaction ledger
       </h1>
-      <p className="mt-1 text-sm text-gray-500">
+      <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">
         All income and expenses recorded for your farm.
       </p>
       <div className="mt-6">

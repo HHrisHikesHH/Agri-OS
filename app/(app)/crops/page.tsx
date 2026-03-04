@@ -39,11 +39,13 @@ export default async function CropsPage() {
     .order("type", { ascending: true })
 
   return (
-    <div className="max-w-4xl p-4 md:p-8">
+    <div className="max-w-4xl p-4 md:p-8 bg-gray-50 dark:bg-gray-950 min-h-full">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-green-800">🌾 Crop seasons</h1>
-          <p className="mt-1 text-gray-500">
+          <h1 className="text-2xl font-bold text-green-800 dark:text-green-400">
+            🌾 Crop seasons
+          </h1>
+          <p className="mt-1 text-gray-500 dark:text-gray-400">
             Plan and track your crop cycles season by season.
           </p>
         </div>

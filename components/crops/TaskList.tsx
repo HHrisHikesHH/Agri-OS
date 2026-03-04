@@ -1,9 +1,10 @@
-'use client'
+"use client"
 
 import { useMemo, useState, useTransition } from "react"
 
 import { completeTask, deleteTask, skipTask } from "@/app/(app)/crops/actions"
 import { Button } from "@/components/ui/button"
+import { TaskCheckbox } from "@/components/crops/TaskCheckbox"
 import { Input } from "@/components/ui/input"
 import type { CropCycleTasksRow } from "@/lib/types/database.types"
 
@@ -245,12 +246,19 @@ function TaskRow({
   const icon = getIconForType(task.task_type ?? "")
 
   return (
-    <div className="flex flex-col gap-1 rounded-lg border border-gray-100 bg-gray-50/70 p-2 md:flex-row md:items-center md:justify-between">
+    <div className="flex flex-col gap-1 rounded-lg border border-gray-100 dark:border-gray-700 bg-gray-50/70 dark:bg-gray-800 p-2 md:flex-row md:items-center md:justify-between">
       <div className="flex items-start gap-2">
         <span className="mt-0.5 text-base">{icon}</span>
-        <div>
-          <p className="font-medium text-gray-800">{task.title}</p>
-          <p className="mt-0.5 text-[11px] text-gray-600">
+        <div className="flex flex-col">
+          <TaskCheckbox
+            taskId={task.id}
+            title={task.title}
+            initialCompleted={task.status === "done"}
+            onComplete={() => {
+              onComplete(task.id)
+            }}
+          />
+          <p className="mt-0.5 text-[11px] text-gray-600 dark:text-gray-400">
             {task.scheduled_date || "No date"} · Cost: ₹{task.cost ?? 0}
           </p>
         </div>
@@ -265,7 +273,7 @@ function TaskRow({
               placeholder="Actual cost ₹"
               value={costInput}
               onChange={(e) => setCostInput(e.target.value)}
-              className="h-7 text-[11px]"
+              className="h-7 text-[11px] dark:bg-gray-900 dark:border-gray-700 dark:text-gray-100"
             />
             <Button
               type="button"

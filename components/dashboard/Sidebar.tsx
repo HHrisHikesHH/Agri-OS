@@ -1,8 +1,9 @@
-'use client'
+"use client"
 
-import { useEffect, useState } from "react"
+import { motion } from "framer-motion"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
+import { useEffect, useState } from "react"
 import {
   BarChart3,
   Bot,
@@ -12,6 +13,7 @@ import {
   Map,
   Sprout,
 } from "lucide-react"
+import { ThemeToggle } from "@/components/ui/ThemeToggle"
 
 type NavItem = {
   label: string
@@ -68,21 +70,31 @@ export function Sidebar() {
         const active = isActive(item.href)
         const disabled = !item.activeNow
         return (
-          <Link
+          <motion.a
             key={item.href}
             href={item.href}
-            aria-disabled={disabled}
-            className={`group flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-              active
-                ? "bg-green-700 text-white"
-                : disabled
-                  ? "cursor-not-allowed text-gray-400"
-                  : "text-green-900 hover:bg-green-100"
-            }`}
+            whileHover={{ x: 3 }}
+            whileTap={{ scale: disabled ? 1 : 0.97 }}
+            transition={{ type: "spring", stiffness: 500, damping: 30 }}
             onClick={() => setOpen(false)}
+            aria-disabled={disabled}
+            className={`relative flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-colors duration-150 group ${
+              active
+                ? "text-green-700 dark:text-green-400"
+                : disabled
+                  ? "text-gray-400"
+                  : "text-gray-600 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-100"
+            }`}
           >
-            <Icon className="h-4 w-4" />
-            <span className="flex items-center gap-1">
+            {active && (
+              <motion.div
+                layoutId="sidebar-active-pill"
+                className="absolute inset-0 bg-green-50 dark:bg-green-950/30 rounded-xl"
+                transition={{ type: "spring", stiffness: 500, damping: 40 }}
+              />
+            )}
+            <Icon className="relative h-4 w-4" />
+            <span className="relative flex items-center gap-1">
               {item.label}
               {!item.activeNow && (
                 <span className="rounded-full bg-gray-100 px-1.5 py-0.5 text-[10px] font-normal text-gray-500">
@@ -90,12 +102,17 @@ export function Sidebar() {
                 </span>
               )}
               {item.href === "/agent" && unreadAgent > 0 && (
-                <span className="rounded-full bg-red-50 px-1.5 py-0.5 text-[10px] font-normal text-red-700">
-                  {unreadAgent}
-                </span>
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ type: "spring", stiffness: 600, damping: 20 }}
+                  className="rounded-full bg-red-500 text-white px-1.5 py-0.5 text-[10px] font-normal"
+                >
+                  {unreadAgent > 9 ? "9+" : unreadAgent}
+                </motion.span>
               )}
             </span>
-          </Link>
+          </motion.a>
         )
       })}
     </nav>
@@ -103,11 +120,22 @@ export function Sidebar() {
 
   return (
     <>
-      <aside className="hidden h-screen w-64 flex-col border-r border-green-100 bg-green-50/80 px-4 md:flex">
-        <div className="flex h-16 items-center border-b border-green-100">
-          <span className="text-lg font-semibold text-green-900">🌾 Agri OS</span>
+      <aside className="hidden h-screen w-64 flex-col border-r border-green-100 dark:border-green-900 bg-green-50/80 dark:bg-gray-950 px-4 md:flex">
+        <div className="flex h-16 items-center justify-between border-b border-green-100 dark:border-green-900">
+          <span className="text-lg font-semibold text-green-900 dark:text-green-100">
+            🌾 Agri OS
+          </span>
+          <ThemeToggle size="sm" />
         </div>
         {content}
+        <div className="mt-auto pt-4 border-t border-green-100 dark:border-green-900">
+          <div className="flex items-center justify-between px-3 py-2">
+            <span className="text-xs text-gray-500 dark:text-gray-400">
+              Appearance
+            </span>
+            <ThemeToggle size="sm" />
+          </div>
+        </div>
       </aside>
 
       <button
@@ -120,9 +148,10 @@ export function Sidebar() {
 
       {open && (
         <div className="fixed inset-0 z-20 flex md:hidden">
-          <div className="h-full w-64 border-r border-green-100 bg-green-50/95 px-4 pb-6 pt-12 shadow-xl">
-            <div className="mb-4 text-lg font-semibold text-green-900">
+          <div className="h-full w-64 border-r border-green-100 dark:border-green-900 bg-green-50/95 dark:bg-gray-950 px-4 pb-6 pt-12 shadow-xl">
+            <div className="mb-4 flex items-center justify-between text-lg font-semibold text-green-900 dark:text-green-100">
               🌾 Agri OS
+              <ThemeToggle size="sm" />
             </div>
             {content}
           </div>

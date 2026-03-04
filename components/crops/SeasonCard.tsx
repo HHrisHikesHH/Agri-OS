@@ -42,45 +42,57 @@ export function SeasonCard({ season }: SeasonCardProps) {
   else if (hasEnded) statusLabel = "⚫ Completed"
 
   return (
-    <div className="flex flex-col justify-between rounded-xl border bg-white p-4 text-sm shadow-sm">
+    <div className="flex flex-col justify-between rounded-xl border bg-white dark:bg-gray-900 dark:border-gray-800 p-4 text-sm shadow-sm dark:shadow-gray-950">
       <div>
         <div className="flex items-center justify-between gap-2">
           <div>
-            <h3 className="text-base font-semibold text-green-900">
+            <h3 className="text-base font-semibold text-green-900 dark:text-green-300">
               {season.name}
             </h3>
-            <p className="mt-0.5 text-xs text-gray-600">
+            <p className="mt-0.5 text-xs text-gray-600 dark:text-gray-400">
               {season.start_date} → {season.end_date}
             </p>
           </div>
-          <span className="rounded-full bg-green-50 px-2 py-0.5 text-[11px] font-medium text-green-800">
+          <span className="rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-[11px] font-medium text-green-800 dark:text-green-400">
             {statusLabel}
           </span>
         </div>
-        <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-gray-700 md:grid-cols-4">
+        <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-gray-700 dark:text-gray-300 md:grid-cols-4">
           <div>
-            <p className="text-[11px] text-gray-500">Crop cycles</p>
-            <p className="font-semibold text-green-800">{cycles.length}</p>
+            <p className="text-[11px] text-gray-500 dark:text-gray-400">
+              Crop cycles
+            </p>
+            <p className="font-semibold text-green-800 dark:text-green-400">
+              {cycles.length}
+            </p>
           </div>
           <div>
-            <p className="text-[11px] text-gray-500">Area under crops</p>
-            <p className="font-semibold text-green-800">
+            <p className="text-[11px] text-gray-500 dark:text-gray-400">
+              Area under crops
+            </p>
+            <p className="font-semibold text-green-800 dark:text-green-400">
               {totalArea.toFixed(1)} acres
             </p>
           </div>
           <div>
-            <p className="text-[11px] text-gray-500">P&L (₹)</p>
+            <p className="text-[11px] text-gray-500 dark:text-gray-400">
+              P&L (₹)
+            </p>
             <p
               className={`font-semibold ${
-                net >= 0 ? "text-green-700" : "text-red-700"
+                net >= 0
+                  ? "text-green-700 dark:text-green-400"
+                  : "text-red-700 dark:text-red-400"
               }`}
             >
               {net.toFixed(0)}
             </p>
           </div>
           <div>
-            <p className="text-[11px] text-gray-500">Rainfall</p>
-            <p className="font-semibold text-green-800">
+            <p className="text-[11px] text-gray-500 dark:text-gray-400">
+              Rainfall
+            </p>
+            <p className="font-semibold text-green-800 dark:text-green-400">
               {season.rainfall_mm != null ? `${season.rainfall_mm} mm` : "—"}
             </p>
           </div>
@@ -88,7 +100,7 @@ export function SeasonCard({ season }: SeasonCardProps) {
       </div>
 
       <div className="mt-4 flex items-center justify-between gap-2 text-xs">
-        <div className="text-[11px] text-gray-500">
+        <div className="text-[11px] text-gray-500 dark:text-gray-400">
           Year {season.year} · {season.type}
         </div>
         <Link

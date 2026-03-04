@@ -20,7 +20,7 @@ export function AgentMessage({ role, content, toolsUsed }: Props) {
           className={`rounded-2xl px-3 py-2 text-xs leading-relaxed ${
             isUser
               ? "rounded-br-none bg-green-700 text-white"
-              : "rounded-bl-none bg-gray-50 text-gray-900 border border-gray-100"
+              : "rounded-bl-none bg-gray-100 dark:bg-gray-800 text-gray-900 dark:text-gray-100 border border-gray-100 dark:border-gray-800"
           }`}
         >
           {content.split("\n").map((line, idx) => (
@@ -34,7 +34,7 @@ export function AgentMessage({ role, content, toolsUsed }: Props) {
             {toolsUsed.map((tool) => (
               <span
                 key={tool}
-                className="rounded-full bg-green-50 px-2 py-0.5 text-[10px] text-green-800"
+                className="rounded-full bg-green-100 dark:bg-green-900/30 px-2 py-0.5 text-[10px] text-green-800 dark:text-green-400"
               >
                 🔧 {tool.replace(/_/g, " ")}
               </span>
