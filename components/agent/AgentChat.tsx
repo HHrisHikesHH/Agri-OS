@@ -1,0 +1,196 @@
+'use client'
+
+import { useEffect, useRef, useState, useTransition } from "react"
+
+import type {
+  AgentAlertsRow,
+  AgentInteractionsRow,
+  AgentRecommendationsRow,
+} from "@/lib/types/database.types"
+
+import { AgentInput } from "./AgentInput"
+import { AgentMessage } from "./AgentMessage"
+import { AgentSuggestions } from "./AgentSuggestions"
+import { ContextSummaryCard } from "./ContextSummaryCard"
+import { RecommendationCard } from "./RecommendationCard"
+
+type ChatMessage = {
+  role: "user" | "assistant"
+  content: string
+}
+
+type Props = {
+  recentInteractions: AgentInteractionsRow[]
+  unreadAlerts: AgentAlertsRow[]
+  pendingRecommendations: AgentRecommendationsRow[]
+}
+
+export function AgentChat({
+  recentInteractions,
+  unreadAlerts,
+  pendingRecommendations,
+}: Props) {
+  const [messages, setMessages] = useState<ChatMessage[]>(() => {
+    if (recentInteractions.length === 0) return []
+    const last = recentInteractions[0]
+    return [
+      { role: "user", content: last.user_message },
+      { role: "assistant", content: last.agent_response },
+    ]
+  })
+  const [isStreaming, setIsStreaming] = useState(false)
+  const [skillLabel, setSkillLabel] = useState<string>("")
+  const [isRefreshingContext, startRefresh] = useTransition()
+  const chatEndRef = useRef<HTMLDivElement | null>(null)
+
+  useEffect(() => {
+    if (chatEndRef.current) {
+      chatEndRef.current.scrollIntoView({ behavior: "smooth" })
+    }
+  }, [messages, isStreaming])
+
+  async function sendMessage(text: string) {
+    if (!text.trim()) return
+    setIsStreaming(true)
+    const userMsg: ChatMessage = {
+      role: "user",
+      content: text.trim(),
+    }
+    setMessages((prev) => [
+      ...prev,
+      userMsg,
+      { role: "assistant", content: "" },
+    ])
+
+    const res = await fetch("/api/agent/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        messages: [userMsg],
+        conversationHistory: messages,
+      }),
+    })
+
+    const skillHeader = res.headers.get("X-Skill-Used")
+    if (skillHeader) setSkillLabel(skillHeader)
+
+    const reader = res.body?.getReader()
+    if (!reader) {
+      setIsStreaming(false)
+      return
+    }
+
+    const decoder = new TextDecoder()
+    let fullText = ""
+
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+      fullText += decoder.decode(value, { stream: true })
+      setMessages((prev) => [
+        ...prev.slice(0, -1),
+        { role: "assistant", content: fullText },
+      ])
+    }
+
+    setIsStreaming(false)
+  }
+
+  function handleSuggestionClick(text: string) {
+    void sendMessage(text)
+  }
+
+  function refreshContext() {
+    startRefresh(async () => {
+      await fetch("/api/agent/context", { method: "POST" })
+    })
+  }
+
+  return (
+    <div className="flex h-full flex-col md:flex-row">
+      <aside className="hidden w-80 flex-shrink-0 flex-col gap-3 border-r border-green-100 bg-green-50/60 p-4 md:flex">
+        <div className="mb-2 flex items-center justify-between">
+          <h2 className="text-sm font-semibold text-green-900">
+            🌾 Agri OS Agent
+          </h2>
+          {skillLabel && (
+            <span className="rounded-full bg-white px-2 py-0.5 text-[10px] text-green-800">
+              {skillLabel}
+            </span>
+          )}
+        </div>
+        <button
+          type="button"
+          onClick={refreshContext}
+          disabled={isRefreshingContext}
+          className="mb-2 inline-flex items-center justify-center rounded-full border border-green-300 bg-white px-3 py-1 text-[11px] font-medium text-green-800 hover:bg-green-100"
+        >
+          {isRefreshingContext ? "Refreshing…" : "Refresh farm context"}
+        </button>
+        <ContextSummaryCard unreadAlerts={unreadAlerts} />
+        {pendingRecommendations.length > 0 && (
+          <div className="mt-2 space-y-2">
+            <p className="text-[11px] font-semibold text-green-800">
+              Pending recommendations
+            </p>
+            {pendingRecommendations.map((r) => (
+              <RecommendationCard key={r.id} recommendation={r} />
+            ))}
+          </div>
+        )}
+      </aside>
+
+      <main className="flex flex-1 flex-col bg-white">
+        <div className="flex items-center justify-between border-b border-green-100 px-4 py-2 md:hidden">
+          <div>
+            <p className="text-sm font-semibold text-green-900">
+              🌾 Agri OS Agent
+            </p>
+            {skillLabel && (
+              <p className="text-[11px] text-gray-600">
+                {skillLabel}
+              </p>
+            )}
+          </div>
+          <button
+            type="button"
+            onClick={refreshContext}
+            disabled={isRefreshingContext}
+            className="rounded-full border border-green-300 bg-green-50 px-3 py-1 text-[11px] font-medium text-green-800"
+          >
+            {isRefreshingContext ? "Refreshing…" : "Refresh context"}
+          </button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-4 py-3">
+          {messages.length === 0 && (
+            <AgentSuggestions onSelect={handleSuggestionClick} />
+          )}
+          <div className="space-y-3">
+            {messages.map((m, idx) => (
+              <AgentMessage
+                key={idx}
+                role={m.role}
+                content={m.content}
+              />
+            ))}
+            {isStreaming && (
+              <p className="text-[11px] text-gray-400">
+                Agent is thinking…
+              </p>
+            )}
+            <div ref={chatEndRef} />
+          </div>
+        </div>
+
+        <div className="border-t border-green-100 px-4 py-3">
+          <AgentInput
+            onSend={sendMessage}
+            disabled={isStreaming}
+          />
+        </div>
+      </main>
+    </div>
+  )
+}
+
