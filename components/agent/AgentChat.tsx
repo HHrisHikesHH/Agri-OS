@@ -95,15 +95,17 @@ export function AgentChat({
   }, [messages, isStreaming])
 
   useEffect(() => {
-    const el = scrollContainerRef.current
-    if (!el) return
-
     function onScroll() {
+      const el = scrollContainerRef.current
+      if (!el) return
       if (isLoadingHistory || !hasMoreHistory) return
       if (el.scrollTop <= 40) {
         void loadMoreHistory()
       }
     }
+
+    const el = scrollContainerRef.current
+    if (!el) return
 
     el.addEventListener("scroll", onScroll)
     return () => {

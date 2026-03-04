@@ -39,7 +39,7 @@ export function AgentSuggestions({ onSelect }: Props) {
       <div className="flex flex-wrap gap-2">
         {SUGGESTIONS.map((s) => (
           <button
-            key={s}
+            key={s.text}
             type="button"
             onClick={() => onSelect(s.text)}
             className="rounded-full border border-green-200 bg-green-50 px-3 py-1 text-[11px] text-green-900 hover:bg-green-100"

@@ -1,12 +1,12 @@
 "use client"
 
-import NumberFlow from "@number-flow/react"
+import NumberFlow, { type Format } from "@number-flow/react"
 
 interface AnimatedNumberProps {
   value: number
   prefix?: string
   suffix?: string
-  format?: Intl.NumberFormatOptions
+  format?: Format
   className?: string
 }
 
@@ -17,10 +17,12 @@ export function AnimatedNumber({
   format,
   className = "",
 }: AnimatedNumberProps) {
-  const defaultFormat: Intl.NumberFormatOptions = format ?? {
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }
+  const defaultFormat: Format =
+    format ??
+    ({
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    } satisfies Format)
 
   return (
     <span className={`font-mono ${className}`}>
@@ -58,10 +60,12 @@ export function AnimatedINR({
       ₹
       <NumberFlow
         value={display.val}
-        format={{
-          minimumFractionDigits: display.val >= 10 ? 0 : 1,
-          maximumFractionDigits: 1,
-        }}
+        format={
+          {
+            minimumFractionDigits: display.val >= 10 ? 0 : 1,
+            maximumFractionDigits: 1,
+          } satisfies Format
+        }
         transformTiming={{ duration: 700, easing: "ease-out" }}
       />
       {display.suffix}

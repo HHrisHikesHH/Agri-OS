@@ -3,8 +3,6 @@
 import { AnimatePresence, motion } from "framer-motion"
 import { useState } from "react"
 
-import { completeTask } from "@/app/(app)/crops/actions"
-
 export function TaskCheckbox({
   taskId,
   title,
@@ -24,8 +22,7 @@ export function TaskCheckbox({
     setAnimating(true)
     setChecked(true)
 
-    setTimeout(async () => {
-      await completeTask(taskId)
+    setTimeout(() => {
       setAnimating(false)
       onComplete?.()
     }, 600)

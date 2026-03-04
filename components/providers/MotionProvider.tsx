@@ -1,15 +1,18 @@
 "use client"
 
-import { AnimatePresence, motion } from "framer-motion"
+import { AnimatePresence, motion, type Variants } from "framer-motion"
 import { usePathname } from "next/navigation"
 
-const pageVariants = {
+const pageVariants: Variants = {
   initial: { opacity: 0, y: 12, filter: "blur(4px)" },
   animate: {
     opacity: 1,
     y: 0,
     filter: "blur(0px)",
-    transition: { duration: 0.3, ease: [0.25, 1, 0.5, 1] },
+    transition: {
+      duration: 0.3,
+      ease: [0.25, 1, 0.5, 1] as [number, number, number, number],
+    },
   },
   exit: {
     opacity: 0,

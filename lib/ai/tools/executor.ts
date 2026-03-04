@@ -186,7 +186,7 @@ export async function executeTool(
 
         const { data: cycles } = await supabase
           .from("crop_cycles")
-          .select<string>(`
+          .select(`
             id, status, area_acres, sowing_date, expected_harvest_date,
             actual_harvest_date, expected_yield_qtl, actual_yield_qtl,
             total_input_cost, total_revenue, net_profit, profit_per_acre,
@@ -280,7 +280,7 @@ export async function executeTool(
 
         const { data: tasks } = await supabase
           .from("crop_cycle_tasks")
-          .select<string>(`
+          .select(`
             id, title, task_type, scheduled_date, status,
             crop_cycles (
               portfolio_items ( name ),
@@ -405,7 +405,7 @@ export async function executeTool(
 
         const { data: cycles } = await supabase
           .from("crop_cycles")
-          .select<string>(
+          .select(
             "portfolio_items(name), net_profit, profit_per_acre, area_acres",
           )
           .eq("user_id", userId)
@@ -453,7 +453,7 @@ export async function executeTool(
 
         const { data: applications } = await supabase
           .from("user_scheme_applications")
-          .select<string>("*, schemes_master(name)")
+          .select("*, schemes_master(name)")
           .eq("user_id", userId)
 
         const appliedIds = new Set(
@@ -554,7 +554,7 @@ export async function executeTool(
 
         let query = supabase
           .from("sales")
-          .select<string>(`
+          .select(`
             sale_date, quantity, unit, price_per_unit, total_amount,
             buyer_type, buyer_name, channel, price_vs_market,
             portfolio_items ( name )
