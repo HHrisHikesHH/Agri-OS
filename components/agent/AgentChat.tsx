@@ -1,6 +1,11 @@
 'use client'
 
-import { useEffect, useRef, useState, useTransition } from "react"
+import {
+  useEffect,
+  useRef,
+  useState,
+  useTransition,
+} from "react"
 
 import type {
   AgentAlertsRow,
@@ -18,6 +23,7 @@ import { RecommendationCard } from "./RecommendationCard"
 type ChatMessage = {
   role: "user" | "assistant"
   content: string
+  toolsUsed?: string[]
 }
 
 type Props = {
@@ -60,48 +66,68 @@ export function AgentChat({
     setMessages((prev) => [
       ...prev,
       userMsg,
-      { role: "assistant", content: "" },
+      {
+        role: "assistant",
+        content: "",
+        toolsUsed: [],
+      },
     ])
 
-    const res = await fetch("/api/agent/chat", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        messages: [userMsg],
-        conversationHistory: messages,
-      }),
-    })
+    try {
+      const res = await fetch("/api/agent/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          messages: [userMsg],
+          conversationHistory: messages,
+        }),
+      })
 
-    const skillHeader = res.headers.get("X-Skill-Used")
-    if (skillHeader) {
-      // Convert internal skill id to human-friendly label with emoji.
-      try {
-        setSkillLabel(getSkillLabel(skillHeader as any))
-      } catch {
-        setSkillLabel("")
+      const data = (await res.json()) as {
+        text?: string
+        tools_used?: string[]
+        skill?: string
+        error?: string
       }
-    }
 
-    const reader = res.body?.getReader()
-    if (!reader) {
-      setIsStreaming(false)
-      return
-    }
+      if (data.skill) {
+        setSkillLabel(data.skill)
+      }
 
-    const decoder = new TextDecoder()
-    let fullText = ""
+      if (!res.ok || data.error) {
+        setMessages((prev) => [
+          ...prev.slice(0, -1),
+          {
+            role: "assistant",
+            content:
+              data.error ??
+              "Sorry, something went wrong. Please try again.",
+          },
+        ])
+        setIsStreaming(false)
+        return
+      }
 
-    while (true) {
-      const { done, value } = await reader.read()
-      if (done) break
-      fullText += decoder.decode(value, { stream: true })
       setMessages((prev) => [
         ...prev.slice(0, -1),
-        { role: "assistant", content: fullText },
+        {
+          role: "assistant",
+          content: data.text ?? "",
+          toolsUsed: data.tools_used ?? [],
+        },
       ])
+    } catch {
+      setMessages((prev) => [
+        ...prev.slice(0, -1),
+        {
+          role: "assistant",
+          content:
+            "Sorry, something went wrong. Please check your connection and try again.",
+        },
+      ])
+    } finally {
+      setIsStreaming(false)
     }
-
-    setIsStreaming(false)
   }
 
   function handleSuggestionClick(text: string) {
@@ -180,6 +206,7 @@ export function AgentChat({
                 key={idx}
                 role={m.role}
                 content={m.content}
+                toolsUsed={m.toolsUsed}
               />
             ))}
             {isStreaming && (

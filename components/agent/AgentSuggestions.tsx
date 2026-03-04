@@ -4,13 +4,30 @@ type Props = {
   onSelect: (text: string) => void
 }
 
-const SUGGESTIONS: string[] = [
-  "How profitable is my tur this season?",
-  "Should I sell my jowar now or wait?",
-  "What business can I start with my mango trees?",
-  "What should I grow next rabi season?",
-  "Which government schemes do I qualify for?",
-  "What are my biggest risks this season?",
+const SUGGESTIONS: { text: string; icon: string }[] = [
+  { text: "Aaj tur ka bhav kya hai?", icon: "📊" },
+  { text: "Kal baarish aayegi kya?", icon: "🌧️" },
+  { text: "Kon se tasks overdue hain?", icon: "⚠️" },
+  {
+    text: "Is season mein kitna profit hua?",
+    icon: "💰",
+  },
+  {
+    text: "Maine aaj 2 quintal tur ₹7200 mein becha",
+    icon: "🌾",
+  },
+  {
+    text: "Konsi government schemes ke liye main eligible hoon?",
+    icon: "🏛️",
+  },
+  {
+    text: "Mango ke liye koi business idea hai?",
+    icon: "💡",
+  },
+  {
+    text: "DAP fertilizer ka ₹1200 kharcha hua aaj",
+    icon: "💸",
+  },
 ]
 
 export function AgentSuggestions({ onSelect }: Props) {
@@ -24,10 +41,11 @@ export function AgentSuggestions({ onSelect }: Props) {
           <button
             key={s}
             type="button"
-            onClick={() => onSelect(s)}
+            onClick={() => onSelect(s.text)}
             className="rounded-full border border-green-200 bg-green-50 px-3 py-1 text-[11px] text-green-900 hover:bg-green-100"
           >
-            {s}
+            <span className="mr-1">{s.icon}</span>
+            {s.text}
           </button>
         ))}
       </div>

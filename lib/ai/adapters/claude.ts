@@ -1,6 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk"
 
 import type { AIMessage, AIResponse } from "../service"
+import type { Tool } from "../tools/definitions"
 
 const client = new Anthropic({
   apiKey: process.env.ANTHROPIC_API_KEY,
@@ -79,4 +80,48 @@ export async function claudeStreamAdapter(
 
   return { stream: readableStream, provider: "claude" as const }
 }
+
+export async function claudeAdapterWithTools(
+  messages: AIMessage[],
+  tools: Tool[],
+  options?: { maxTokens?: number },
+): Promise<{
+  text: string
+  toolCalls: Array<{ name: string; params: Record<string, unknown> }>
+}> {
+  const systemMessage = messages.find((m) => m.role === "system")
+  const conversationMessages = messages.filter((m) => m.role !== "system")
+
+  const anthropicTools = tools.map((t) => ({
+    name: t.name,
+    description: t.description,
+    input_schema: t.parameters,
+  }))
+
+  const response = await client.messages.create({
+    model: "claude-3-5-sonnet-20241022",
+    max_tokens: options?.maxTokens ?? 2000,
+    system: systemMessage?.content,
+    tools: anthropicTools,
+    messages: conversationMessages.map((m) => ({
+      role: m.role as "user" | "assistant",
+      content: m.content,
+    })),
+  })
+
+  const text = response.content
+    .filter((b) => b.type === "text")
+    .map((b: any) => b.text as string)
+    .join("")
+
+  const toolCalls = response.content
+    .filter((b) => b.type === "tool_use")
+    .map((b: any) => ({
+      name: b.name as string,
+      params: (b.input ?? {}) as Record<string, unknown>,
+    }))
+
+  return { text, toolCalls }
+}
+
 

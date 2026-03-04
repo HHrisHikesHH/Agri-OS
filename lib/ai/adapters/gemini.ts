@@ -1,4 +1,5 @@
 import type { AIMessage, AIResponse } from "../service"
+import type { Tool } from "../tools/definitions"
 
 const GEMINI_BASE =
   "https://generativelanguage.googleapis.com/v1beta/models"
@@ -139,4 +140,66 @@ export async function geminiStreamAdapter(
 
   return { stream: textStream, provider: "gemini" as const }
 }
+
+export async function geminiAdapterWithTools(
+  messages: AIMessage[],
+  tools: Tool[],
+  options?: { maxTokens?: number },
+): Promise<{
+  text: string
+  toolCalls: Array<{ name: string; params: Record<string, unknown> }>
+}> {
+  const systemMessage = messages.find((m) => m.role === "system")
+  const chatMessages = messages.filter((m) => m.role !== "system")
+
+  const functionDeclarations = tools.map((t) => ({
+    name: t.name,
+    description: t.description,
+    parameters: t.parameters,
+  }))
+
+  const res = await fetch(
+    `${GEMINI_BASE}/${MODEL}:generateContent?key=${process.env.GEMINI_API_KEY}`,
+    {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        systemInstruction: systemMessage
+          ? { parts: [{ text: systemMessage.content }] }
+          : undefined,
+        contents: chatMessages.map((m) => ({
+          role: m.role === "assistant" ? "model" : "user",
+          parts: [{ text: m.content }],
+        })),
+        tools: [{ function_declarations: functionDeclarations }],
+        generationConfig: {
+          maxOutputTokens: options?.maxTokens ?? 2000,
+        },
+      }),
+    },
+  )
+
+  if (!res.ok) {
+    throw new Error(`Gemini error: ${res.status}`)
+  }
+  const data = await res.json()
+
+  const parts = data.candidates?.[0]?.content?.parts ?? []
+
+  const text = parts
+    .filter((p: any) => p.text)
+    .map((p: any) => String(p.text))
+    .join("")
+
+  const toolCalls = parts
+    .filter((p: any) => p.functionCall)
+    .map((p: any) => ({
+      name: String(p.functionCall.name),
+      params:
+        (p.functionCall.args as Record<string, unknown>) ?? {},
+    }))
+
+  return { text, toolCalls }
+}
+
 
