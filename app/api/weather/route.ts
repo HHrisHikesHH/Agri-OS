@@ -15,6 +15,16 @@ export async function GET(request: NextRequest) {
     getForecast(lat, lng),
   ])
 
-  return NextResponse.json({ current, forecast })
+  // Minimal debug fields to help verify server-side config.
+  const debug =
+    request.nextUrl.searchParams.get("debug") === "1"
+      ? {
+          lat,
+          lng,
+          hasKey: Boolean(process.env.AGROMONITORING_API_KEY),
+        }
+      : undefined
+
+  return NextResponse.json({ current, forecast, debug })
 }
 

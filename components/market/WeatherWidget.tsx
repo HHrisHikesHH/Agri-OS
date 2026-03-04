@@ -16,10 +16,18 @@ export function WeatherWidget({ currentProp, forecastProp }: Props) {
   const [forecast, setForecast] = useState<ForecastDay[]>(
     forecastProp ?? [],
   )
-  const [loading, setLoading] = useState(!currentProp)
+  const [loading, setLoading] = useState(
+    !currentProp && !(forecastProp && forecastProp.length > 0),
+  )
 
   useEffect(() => {
-    if (currentProp || forecastProp) return
+    const hasServerData =
+      !!currentProp || !!(forecastProp && forecastProp.length > 0)
+    if (hasServerData) {
+      // Ensure loading is false when we already have data from the server.
+      setLoading(false)
+      return
+    }
 
     let cancelled = false
     async function load() {

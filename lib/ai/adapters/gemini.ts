@@ -2,7 +2,7 @@ import type { AIMessage, AIResponse } from "../service"
 
 const GEMINI_BASE =
   "https://generativelanguage.googleapis.com/v1beta/models"
-const MODEL = "gemini-1.5-flash"
+const MODEL = "gemini-2.5-flash"
 
 export async function geminiAdapter(
   messages: AIMessage[],
@@ -84,7 +84,59 @@ export async function geminiStreamAdapter(
     throw new Error(`Gemini stream error: ${res.status}`)
   }
 
-  // For simplicity, return raw SSE stream; client will receive chunks.
-  return { stream: res.body, provider: "gemini" as const }
+  // Wrap the SSE stream and emit only text chunks so that
+  // callers receive a plain text stream (no JSON / SSE framing).
+  const textStream = new ReadableStream<Uint8Array>({
+    start(controller) {
+      const reader = res.body!.getReader()
+      const decoder = new TextDecoder()
+      let buffer = ""
+
+      async function pump() {
+        try {
+          while (true) {
+            const { done, value } = await reader.read()
+            if (done) break
+            buffer += decoder.decode(value, { stream: true })
+
+            const lines = buffer.split("\n")
+            buffer = lines.pop() ?? ""
+
+            for (const line of lines) {
+              const trimmed = line.trim()
+              if (!trimmed || !trimmed.startsWith("data:")) continue
+              const payload = trimmed.slice(5).trim()
+              if (!payload || payload === "[DONE]") continue
+
+              try {
+                const json = JSON.parse(payload) as {
+                  candidates?: Array<{
+                    content?: { parts?: Array<{ text?: string }> }
+                  }>
+                }
+                const text =
+                  json.candidates?.[0]?.content?.parts?.[0]?.text
+                if (text) {
+                  controller.enqueue(
+                    new TextEncoder().encode(text),
+                  )
+                }
+              } catch {
+                // Ignore malformed JSON chunks
+              }
+            }
+          }
+        } catch {
+          // Swallow streaming errors; caller will see partial text.
+        } finally {
+          controller.close()
+        }
+      }
+
+      void pump()
+    },
+  })
+
+  return { stream: textStream, provider: "gemini" as const }
 }
 

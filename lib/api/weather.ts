@@ -1,5 +1,4 @@
-const OWM_BASE = "https://api.openweathermap.org/data/2.5"
-const API_KEY = process.env.OPENWEATHER_API_KEY
+const AGRO_BASE = "https://api.agromonitoring.com/agro/1.0"
 
 export interface WeatherData {
   temperature: number
@@ -26,25 +25,29 @@ export async function getCurrentWeather(
   lat: number,
   lng: number,
 ): Promise<WeatherData | null> {
+  const API_KEY = process.env.AGROMONITORING_API_KEY
   if (!API_KEY) return null
 
   try {
     const res = await fetch(
-      `${OWM_BASE}/weather?lat=${lat}&lon=${lng}&appid=${API_KEY}&units=metric`,
+      `${AGRO_BASE}/weather?lat=${lat}&lon=${lng}&appid=${API_KEY}`,
       { next: { revalidate: 1800 } },
     )
     if (!res.ok) return null
     const data = await res.json()
 
+    const kelvinToCelsius = (k: number | undefined) =>
+      typeof k === "number" ? Math.round(k - 273.15) : 0
+
     return {
-      temperature: Math.round(data.main.temp),
-      feelsLike: Math.round(data.main.feels_like),
-      humidity: data.main.humidity,
-      description: data.weather[0]?.description ?? "",
-      windSpeed: data.wind.speed,
-      icon: data.weather[0]?.icon ?? "",
-      sunrise: data.sys.sunrise,
-      sunset: data.sys.sunset,
+      temperature: kelvinToCelsius(data.main?.temp),
+      feelsLike: kelvinToCelsius(data.main?.feels_like),
+      humidity: data.main?.humidity ?? 0,
+      description: data.weather?.[0]?.description ?? "",
+      windSpeed: data.wind?.speed ?? 0,
+      icon: data.weather?.[0]?.icon ?? "",
+      sunrise: data.sys?.sunrise ?? 0,
+      sunset: data.sys?.sunset ?? 0,
     }
   } catch {
     return null
@@ -55,39 +58,42 @@ export async function getForecast(
   lat: number,
   lng: number,
 ): Promise<ForecastDay[]> {
+  const API_KEY = process.env.AGROMONITORING_API_KEY
   if (!API_KEY) return []
 
   try {
     const res = await fetch(
-      `${OWM_BASE}/forecast?lat=${lat}&lon=${lng}&appid=${API_KEY}&units=metric&cnt=40`,
+      `${AGRO_BASE}/weather/forecast?lat=${lat}&lon=${lng}&appid=${API_KEY}`,
       { next: { revalidate: 3600 } },
     )
     if (!res.ok) return []
-    const data = await res.json()
-
-    const dayMap = new Map<string, ForecastDay>()
-    const list = data.list as Array<{
-      dt_txt: string
+    const data = (await res.json()) as Array<{
+      dt: number
       main: { temp_min: number; temp_max: number; humidity: number }
       weather: { description: string; icon: string }[]
       rain?: Record<string, number>
     }>
 
-    for (const item of list) {
-      const [date, time] = String(item.dt_txt).split(" ")
-      const hour = parseInt(time, 10)
-      if (!dayMap.has(date) || hour === 12) {
+    const kelvinToCelsius = (k: number | undefined) =>
+      typeof k === "number" ? Math.round(k - 273.15) : 0
+
+    const dayMap = new Map<string, ForecastDay>()
+
+    for (const item of data) {
+      const date = new Date(item.dt * 1000).toISOString().split("T")[0]
+      if (!dayMap.has(date)) {
         dayMap.set(date, {
           date,
-          tempMin: Math.round(item.main.temp_min),
-          tempMax: Math.round(item.main.temp_max),
-          description: item.weather[0]?.description ?? "",
-          icon: item.weather[0]?.icon ?? "",
+          tempMin: kelvinToCelsius(item.main?.temp_min),
+          tempMax: kelvinToCelsius(item.main?.temp_max),
+          description: item.weather?.[0]?.description ?? "",
+          icon: item.weather?.[0]?.icon ?? "",
           rainMm: item.rain?.["3h"] ?? 0,
-          humidity: item.main.humidity,
+          humidity: item.main?.humidity ?? 0,
         })
       }
     }
+
     return Array.from(dayMap.values()).slice(0, 7)
   } catch {
     return []

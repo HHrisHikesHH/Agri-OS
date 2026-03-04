@@ -8,6 +8,7 @@ import type {
   AgentRecommendationsRow,
 } from "@/lib/types/database.types"
 
+import { getSkillLabel } from "@/lib/ai/context/skills"
 import { AgentInput } from "./AgentInput"
 import { AgentMessage } from "./AgentMessage"
 import { AgentSuggestions } from "./AgentSuggestions"
@@ -72,7 +73,14 @@ export function AgentChat({
     })
 
     const skillHeader = res.headers.get("X-Skill-Used")
-    if (skillHeader) setSkillLabel(skillHeader)
+    if (skillHeader) {
+      // Convert internal skill id to human-friendly label with emoji.
+      try {
+        setSkillLabel(getSkillLabel(skillHeader as any))
+      } catch {
+        setSkillLabel("")
+      }
+    }
 
     const reader = res.body?.getReader()
     if (!reader) {

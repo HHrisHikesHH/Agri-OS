@@ -80,7 +80,8 @@ export async function POST(request: NextRequest) {
 
   try {
     const { stream } = await streamAgent(fullMessages, {
-      maxTokens: 1000,
+      // Allow longer, more complete answers while staying reasonable.
+      maxTokens: 2048,
     })
 
     let fullResponse = ""
@@ -135,8 +136,8 @@ export async function POST(request: NextRequest) {
     return new Response(clientStream, {
       headers: {
         "Content-Type": "text/plain; charset=utf-8",
-        "X-Skill-Used": getSkillLabel(skill),
-        "Transfer-Encoding": "chunked",
+        // HTTP headers must be ASCII-only; use the skill id, not the emoji label.
+        "X-Skill-Used": skill,
       },
     })
   } catch (error) {

@@ -4,6 +4,15 @@ import { NextResponse, type NextRequest } from "next/server"
 import type { Database, UsersRow } from "@/lib/types/database.types"
 
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl
+
+  // Allow all API routes to bypass auth middleware; they handle auth/keys themselves.
+  if (pathname.startsWith("/api/")) {
+    const res = NextResponse.next()
+    res.headers.set("x-middleware-api-bypass", "1")
+    return res
+  }
+
   let supabaseResponse = NextResponse.next({ request })
 
   const supabase = createServerClient<Database>(
@@ -30,7 +39,6 @@ export async function middleware(request: NextRequest) {
   const {
     data: { user },
   } = await supabase.auth.getUser()
-  const { pathname } = request.nextUrl
 
   if (
     !user &&
@@ -61,7 +69,11 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
+    // Apply auth middleware to everything EXCEPT:
+    // - /api/* routes
+    // - Next static/image assets
+    // - Common static files
+    "/((?!api/|_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)",
   ],
 }
 
