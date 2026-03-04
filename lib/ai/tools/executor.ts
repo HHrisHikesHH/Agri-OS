@@ -40,7 +40,7 @@ export async function executeTool(
         const { data: prices } = await supabase
           .from("market_prices")
           .select("*")
-          .ilike("commodity", `%${commodityName}%`)
+          .eq("commodity", commodityName)
           .gte("price_date", since)
           .order("price_date", { ascending: false })
           .limit(50)

@@ -46,7 +46,9 @@ export async function syncPrices() {
             : new Date().toISOString().split("T")[0]
 
         return {
-          commodity: p.commodity,
+          // Store a normalized commodity label (the one we requested)
+          // so it matches portfolio names / queries in the UI.
+          commodity,
           mandi_name: p.market,
           district: p.district,
           state: p.state,

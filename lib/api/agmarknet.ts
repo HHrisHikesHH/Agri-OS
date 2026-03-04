@@ -66,26 +66,72 @@ export async function fetchMandiPrices(params: {
   }
 }
 
-export const COMMODITY_MAP: Record<string, string> = {
-  tur: "Arhar (Tur)",
-  toor: "Arhar (Tur)",
-  arhar: "Arhar (Tur)",
-  jowar: "Jowar",
-  bajra: "Bajra",
-  wheat: "Wheat",
-  gehu: "Wheat",
-  chana: "Gram",
-  gram: "Gram",
-  mango: "Mango",
-  guava: "Guava",
-  onion: "Onion",
-  tomato: "Tomato",
-  sunflower: "Sunflower",
-  groundnut: "Groundnut",
+// Each key maps to ALL possible names this commodity appears as
+// in the Agmarknet/data.gov.in API across different mandis.
+export const COMMODITY_MAP: Record<string, string[]> = {
+  tur: ["Arhar (Tur)", "Tur", "Arhar", "Tur Dal", "Pigeon Pea"],
+  toor: ["Arhar (Tur)", "Tur", "Arhar"],
+  arhar: ["Arhar (Tur)", "Tur", "Arhar"],
+  jowar: ["Jowar", "Sorghum", "Jowar(White)", "Jowar(Red)", "Jawar"],
+  bajra: ["Bajra", "Bajra(Cumbu)", "Pearl Millet", "Sajje"],
+  wheat: ["Wheat", "Gehun"],
+  gehu: ["Wheat", "Gehun"],
+  chana: [
+    "Gram",
+    "Bengal Gram",
+    "Chana",
+    "Gram(Whole)",
+    "Chickpeas",
+    "Black Gram",
+  ],
+  gram: ["Gram", "Bengal Gram", "Gram(Whole)", "Chickpeas"],
+  mango: ["Mango", "Mango (Raw)", "Mango (Ripe)", "Mango(Ripe)"],
+  guava: ["Guava"],
+  sunflower: ["Sunflower", "Sunflower Seed", "Sunflower Oil Seed"],
+  onion: ["Onion", "Onion Big", "Onion Small", "Kanda"],
+  tomato: ["Tomato"],
+  groundnut: [
+    "Groundnut",
+    "Groundnut (Split)",
+    "Ground Nut Seed",
+    "Groundnut (With Shell)",
+  ],
+  maize: ["Maize", "Corn"],
+  cotton: ["Cotton", "Cotton(Lint)", "Cotton Seed", "Kapas"],
+  soybean: ["Soyabean", "Soybean", "Soya Bean"],
+  turmeric: ["Turmeric", "Haldi"],
+  coriander: ["Coriander(Leaves)", "Coriander Seed", "Coriander"],
 }
 
+// Normalize any user-facing crop name (including ones with
+// brackets like "Tur (Pigeon pea)") to a simple key that we
+// reuse across API calls and seasonality logic.
+export function getCommodityKey(name: string): string {
+  const raw = name.toLowerCase().trim()
+  // Strip trailing bracketed explanations, e.g.
+  // "tur (pigeon pea)" -> "tur"
+  const base = raw.replace(/\s*\(.*?\)\s*$/, "")
+  return base
+}
+
+// Returns the PRIMARY commodity name (first in array) for display and storage.
 export function getCommodityName(portfolioItemName: string): string {
-  const key = portfolioItemName.toLowerCase().trim()
-  return COMMODITY_MAP[key] ?? portfolioItemName
+  const key = getCommodityKey(portfolioItemName)
+  const variants = COMMODITY_MAP[key]
+  if (variants && variants.length > 0) return variants[0]
+
+  // Fallback: try direct lookup
+  const directKey = portfolioItemName.toLowerCase().trim()
+  return COMMODITY_MAP[directKey]?.[0] ?? portfolioItemName
+}
+
+// Returns ALL possible names for this commodity — used in sync to cast a wide net.
+export function getCommodityVariants(portfolioItemName: string): string[] {
+  const key = getCommodityKey(portfolioItemName)
+  const variants = COMMODITY_MAP[key]
+  if (variants && variants.length > 0) return variants
+
+  const directKey = portfolioItemName.toLowerCase().trim()
+  return COMMODITY_MAP[directKey] ?? [portfolioItemName]
 }
 

@@ -4,6 +4,7 @@ import { PriceHistoryChart } from "@/components/market/PriceHistoryChart"
 import { SellWindowIndicator } from "@/components/market/SellWindowIndicator"
 import { createClient } from "@/lib/supabase/server"
 import { getSellWindowAdvice } from "@/lib/data/price-seasonality"
+import { getCommodityKey } from "@/lib/api/agmarknet"
 import type { MarketPricesRow } from "@/lib/types/database.types"
 // import { formatINR } from "@/lib/utils/currency"
 
@@ -36,11 +37,12 @@ export default async function CommodityPricesPage({
     .split("T")[0]
 
   const commodityName = decodeURIComponent(params.commodity)
+  const commodityKey = getCommodityKey(commodityName)
 
   const { data: historyRaw } = await supabase
     .from("market_prices")
     .select("*")
-    .ilike("commodity", commodityName)
+    .eq("commodity", commodityName)
     .gte("price_date", ninetyDaysAgo)
     .order("price_date", { ascending: true })
 
@@ -95,10 +97,7 @@ export default async function CommodityPricesPage({
     ) ?? 0
 
   const currentMonth = new Date().getMonth() + 1
-  const advice = getSellWindowAdvice(
-    commodityName.toLowerCase(),
-    currentMonth,
-  )
+  const advice = getSellWindowAdvice(commodityKey, currentMonth)
 
   return (
     <div className="max-w-5xl p-4 md:p-8">
