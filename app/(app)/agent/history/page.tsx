@@ -48,7 +48,9 @@ export default async function AgentHistoryPage() {
             className="space-y-1 rounded-xl border bg-white p-3 shadow-sm"
           >
             <p className="text-[11px] text-gray-500">
-              {new Date(i.created_at).toLocaleString("en-IN")}
+              {i.created_at
+                ? new Date(i.created_at).toLocaleString("en-IN")
+                : "Unknown time"}
             </p>
             <p className="font-semibold text-gray-800">
               You: {i.user_message}

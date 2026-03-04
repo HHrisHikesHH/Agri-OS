@@ -45,7 +45,6 @@ export async function fetchMandiPrices(params: {
     const data = (await res.json()) as { records?: MandiPrice[] }
     return data.records ?? []
   } catch (err) {
-    // eslint-disable-next-line no-console
     console.error("Agmarknet fetch error:", err)
     return []
   }

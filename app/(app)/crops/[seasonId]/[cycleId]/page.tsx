@@ -8,6 +8,7 @@ import type {
   PlotsRow,
   PortfolioItemsRow,
   SeasonsRow,
+  UsersRow,
 } from "@/lib/types/database.types"
 
 interface CycleWithRelations extends CropCyclesRow {
@@ -37,6 +38,7 @@ export default async function CropCycleDetailPage({
     .single()
 
   if (!userRow) redirect("/onboarding")
+  const u = userRow as UsersRow
 
   const { data: cycleRaw } = await supabase
     .from("crop_cycles")
@@ -50,7 +52,7 @@ export default async function CropCycleDetailPage({
       crop_cycle_tasks ( * )
     `)
     .eq("id", params.cycleId)
-    .eq("user_id", userRow.id)
+    .eq("user_id", u.id)
     .single()
 
   if (!cycleRaw) redirect(`/crops/${params.seasonId}`)

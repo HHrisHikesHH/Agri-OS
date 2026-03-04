@@ -72,11 +72,13 @@ export function ExpensesView({ expenses }: Props) {
                 ))}
               </Pie>
               <Tooltip
-                formatter={(value: number) =>
-                  `${formatINR(value)} (${(
-                    (value / (total || 1)) * 100
-                  ).toFixed(1)}%)`
-                }
+                formatter={(value) => {
+                  const numericValue = Number(value ?? 0)
+                  const percentage = ((numericValue / (total || 1)) * 100).toFixed(
+                    1,
+                  )
+                  return `${formatINR(numericValue)} (${percentage}%)`
+                }}
               />
             </PieChart>
           )}

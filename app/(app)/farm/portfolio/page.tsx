@@ -2,6 +2,7 @@ import { redirect } from "next/navigation"
 
 import { PortfolioList } from "@/components/farm/portfolio/PortfolioList"
 import { createClient } from "@/lib/supabase/server"
+import type { UsersRow } from "@/lib/types/database.types"
 
 export default async function PortfolioPage() {
   const supabase = createClient()
@@ -17,11 +18,12 @@ export default async function PortfolioPage() {
     .single()
 
   if (!userRow) redirect("/onboarding")
+  const u = userRow as UsersRow
 
   const { data: portfolio } = await supabase
     .from("portfolio_items")
     .select("*")
-    .eq("user_id", userRow.id)
+    .eq("user_id", u.id)
     .eq("is_active", true)
     .order("created_at", { ascending: true })
 

@@ -71,14 +71,17 @@ export function PriceHistoryChart({ data }: Props) {
               domain={["auto", "auto"]}
             />
             <Tooltip
-              formatter={(value: number, name: string) =>
-                name === "modal"
-                  ? [`₹${value.toFixed(0)}`, "Modal"]
-                  : name === "min"
-                  ? [`₹${value.toFixed(0)}`, "Min"]
-                  : [`₹${value.toFixed(0)}`, "Max"]
-              }
-              labelFormatter={(label: string) => `Date: ${label}`}
+              formatter={(value, name) => {
+                const numericValue = Number(value ?? 0)
+                if (name === "modal") {
+                  return [`₹${numericValue.toFixed(0)}`, "Modal"]
+                }
+                if (name === "min") {
+                  return [`₹${numericValue.toFixed(0)}`, "Min"]
+                }
+                return [`₹${numericValue.toFixed(0)}`, "Max"]
+              }}
+              labelFormatter={(label) => `Date: ${label ?? ""}`}
             />
             <Line
               type="monotone"

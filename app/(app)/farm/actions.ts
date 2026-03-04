@@ -20,7 +20,8 @@ async function getUserId(): Promise<string | null> {
     .eq("auth_id", user.id)
     .single()
 
-  return data?.id ?? null
+  const row = data as { id: string } | null
+  return row?.id ?? null
 }
 
 // ─────────────────────────────────────────
@@ -42,7 +43,7 @@ export async function addPlot(formData: FormData) {
     // @ts-expect-error Supabase client typing is narrower than our inferred insert payload.
     .insert({
       user_id: userId,
-      farm_profile_id: farmProfile?.id ?? null,
+      farm_profile_id: (farmProfile as { id: string } | null)?.id ?? null,
       name: (formData.get("name") as string) ?? "",
       area_acres: parseFloat((formData.get("area_acres") as string) ?? "0"),
       ownership: (formData.get("ownership") as string) ?? "owned",

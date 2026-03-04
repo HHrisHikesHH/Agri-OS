@@ -80,7 +80,6 @@ Respond with ONLY the JSON object, no other text.
         digest = JSON.parse(cleaned) as Record<string, string>
       } catch {
         // skip user if parsing fails
-        // eslint-disable-next-line no-continue
         continue
       }
 
@@ -126,7 +125,8 @@ Respond with ONLY the JSON object, no other text.
 
         await supabase
           .from("agent_alerts")
-          .insert(rows as any)
+          // @ts-expect-error Supabase client typing is narrower than our insert payload here.
+          .insert(rows)
       }
 
       processed += 1
@@ -135,7 +135,6 @@ Respond with ONLY the JSON object, no other text.
         await new Promise((resolve) => setTimeout(resolve, 1000))
       }
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error("Digest failed for user", user.id, error)
     }
   }

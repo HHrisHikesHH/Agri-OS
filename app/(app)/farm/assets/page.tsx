@@ -2,6 +2,7 @@ import { redirect } from "next/navigation"
 
 import { AssetsList } from "@/components/farm/assets/AssetsList"
 import { createClient } from "@/lib/supabase/server"
+import type { UsersRow } from "@/lib/types/database.types"
 
 export default async function AssetsPage() {
   const supabase = createClient()
@@ -17,11 +18,12 @@ export default async function AssetsPage() {
     .single()
 
   if (!userRow) redirect("/onboarding")
+  const u = userRow as UsersRow
 
   const { data: assets } = await supabase
     .from("assets")
     .select("*")
-    .eq("user_id", userRow.id)
+    .eq("user_id", u.id)
     .order("created_at", { ascending: true })
 
   return (

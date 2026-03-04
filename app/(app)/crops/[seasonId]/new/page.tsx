@@ -2,6 +2,7 @@ import { redirect } from "next/navigation"
 
 import { PlanCropCycleForm } from "@/components/crops/PlanCropCycleForm"
 import { createClient } from "@/lib/supabase/server"
+import type { UsersRow } from "@/lib/types/database.types"
 
 interface NewCyclePageProps {
   params: { seasonId: string }
@@ -23,17 +24,18 @@ export default async function NewCropCyclePage({
     .single()
 
   if (!userRow) redirect("/onboarding")
+  const u = userRow as UsersRow
 
   const [{ data: plots }, { data: portfolioItems }] = await Promise.all([
     supabase
       .from("plots")
       .select("id, name, area_acres, soil_type")
-      .eq("user_id", userRow.id)
+      .eq("user_id", u.id)
       .eq("is_active", true),
     supabase
       .from("portfolio_items")
       .select("*")
-      .eq("user_id", userRow.id)
+      .eq("user_id", u.id)
       .eq("is_active", true),
   ])
 

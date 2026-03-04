@@ -253,7 +253,14 @@ export function CropCycleDetail({ cycle }: Props) {
           </p>
           <AddSaleForm
             portfolioItems={crop ? [crop] : []}
-            cycles={[cycle]}
+            cycles={[
+              {
+                id: cycle.id,
+                status: cycle.status ?? "planned",
+                area_acres: cycle.area_acres ?? 0,
+                portfolio_items: crop ? { name: crop.name } : null,
+              },
+            ]}
             defaultPortfolioItemId={crop?.id}
             defaultCycleId={cycle.id}
           />

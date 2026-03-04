@@ -9,6 +9,7 @@ import type {
   CropCyclesRow,
   FarmProfilesRow,
   PortfolioItemsRow,
+  PlotsRow,
   TransactionsRow,
   UsersRow,
 } from "@/lib/types/database.types"
@@ -63,7 +64,7 @@ export default async function DashboardPage() {
     .select("*")
     .eq("user_id", userData.id)
 
-  const activePlots = plots ?? []
+  const activePlots = (plots as PlotsRow[] | null) ?? []
   const totalMappedAcres =
     activePlots.reduce((sum, p) => sum + (p.area_acres ?? 0), 0) ?? 0
 
@@ -122,7 +123,8 @@ export default async function DashboardPage() {
     (transactionsRaw as TransactionsRow[] | null) ?? []
 
   let overdueTasksCount = 0
-  let nextTask: { title: string; date: string; cycle: string } | null = null
+  let nextTaskTitle: string | null = null
+  let nextTaskDate: string | null = null
 
   activeCycles.forEach((cycle) => {
     const tasks = cycle.crop_cycle_tasks ?? []
@@ -130,12 +132,9 @@ export default async function DashboardPage() {
       if (t.status === "pending" && t.scheduled_date) {
         if (t.scheduled_date < today) {
           overdueTasksCount += 1
-        } else if (!nextTask || t.scheduled_date < nextTask.date) {
-          nextTask = {
-            title: `${cycle.portfolio_items?.name ?? "Crop"} task`,
-            date: t.scheduled_date,
-            cycle: cycle.portfolio_items?.name ?? "Crop",
-          }
+        } else if (!nextTaskDate || t.scheduled_date < nextTaskDate) {
+          nextTaskTitle = `${cycle.portfolio_items?.name ?? "Crop"} task`
+          nextTaskDate = t.scheduled_date
         }
       }
     })
@@ -239,10 +238,11 @@ export default async function DashboardPage() {
                 details in the Crops section.
               </div>
             )}
-            {nextTask && (
+            {nextTaskTitle && nextTaskDate && (
               <p className="text-xs text-gray-700">
-                Next upcoming task: <strong>{nextTask.title}</strong> on{" "}
-                <strong>{nextTask.date}</strong>.
+                Next upcoming task:{" "}
+                <strong>{nextTaskTitle}</strong> on{" "}
+                <strong>{nextTaskDate}</strong>.
               </p>
             )}
           </>

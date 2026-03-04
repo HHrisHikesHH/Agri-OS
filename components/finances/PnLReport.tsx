@@ -145,13 +145,15 @@ function SeasonSummary({ cycles }: { cycles: CycleWithJoins[] }) {
   const net = totalRevenue - totalCost
   const margin = totalRevenue > 0 ? (net / totalRevenue) * 100 : 0
 
-  let bestCycle: CycleWithJoins | null = null
+  let bestCropName: string | null = null
+  let bestCropProfitPerAcre = 0
   cycles.forEach((c) => {
     if (
       c.profit_per_acre != null &&
-      (!bestCycle || c.profit_per_acre > (bestCycle.profit_per_acre ?? 0))
+      (bestCropName === null || c.profit_per_acre > bestCropProfitPerAcre)
     ) {
-      bestCycle = c
+      bestCropName = c.portfolio_items?.name ?? null
+      bestCropProfitPerAcre = c.profit_per_acre
     }
   })
 
@@ -163,10 +165,9 @@ function SeasonSummary({ cycles }: { cycles: CycleWithJoins[] }) {
       <p className={`text-xs font-semibold ${profitColor(net)}`}>
         Net {formatINR(net)} ({margin.toFixed(1)}% margin)
       </p>
-      {bestCycle && (
+      {bestCropName && (
         <p className="mt-0.5 text-[11px] text-gray-600">
-          Best: {bestCycle.portfolio_items?.name} (
-          {formatINR(bestCycle.profit_per_acre ?? 0)}/acre)
+          Best: {bestCropName} ({formatINR(bestCropProfitPerAcre)}/acre)
         </p>
       )}
     </div>

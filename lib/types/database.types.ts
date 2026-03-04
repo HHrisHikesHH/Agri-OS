@@ -60,6 +60,7 @@ export interface FarmProfilesRow {
   water_status: string | null
   capital_status: string | null
   primary_goal: string | null
+  risk_appetite: string | null
   year1_target_revenue: number | null
   agent_summary: string | null
   agent_summary_updated_at: string | null
@@ -83,6 +84,7 @@ export interface FarmProfilesInsert {
   water_status?: string | null
   capital_status?: string | null
   primary_goal?: string | null
+   risk_appetite?: string | null
   year1_target_revenue?: number | null
   agent_summary?: string | null
   agent_summary_updated_at?: string | null
@@ -106,6 +108,7 @@ export interface FarmProfilesUpdate {
   water_status?: string | null
   capital_status?: string | null
   primary_goal?: string | null
+  risk_appetite?: string | null
   year1_target_revenue?: number | null
   agent_summary?: string | null
   agent_summary_updated_at?: string | null

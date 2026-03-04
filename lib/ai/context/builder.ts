@@ -1,5 +1,6 @@
 import { createClient } from "@/lib/supabase/server"
 import type {
+  AgentContextCacheRow,
   AssetsRow,
   BusinessOpportunitiesRow,
   CropCyclesRow,
@@ -368,23 +369,25 @@ export async function getFarmContext(
     .eq("user_id", userId)
     .single()
 
+  const cacheRow = cached as AgentContextCacheRow | null
+
   const sixHoursAgo = new Date(Date.now() - 6 * 60 * 60 * 1000)
   const cacheIsStale =
-    !cached?.rebuilt_at ||
-    new Date(cached.rebuilt_at) < sixHoursAgo
+    !cacheRow?.rebuilt_at ||
+    new Date(cacheRow.rebuilt_at) < sixHoursAgo
 
-  if (cacheIsStale || !cached?.farm_summary) {
+  if (cacheIsStale || !cacheRow?.farm_summary) {
     const fresh = await buildFarmContext(userId)
     await saveContextCache(userId, fresh)
     return fresh
   }
 
-  const farmSummary = cached.farm_summary ?? ""
-  const financialSummary = cached.financial_summary ?? ""
-  const marketSummary = cached.market_summary ?? ""
-  const recentDecisions = cached.recent_decisions ?? ""
-  const activeOpportunities = cached.active_opportunities ?? ""
-  const riskFlags = cached.risk_flags ?? ""
+  const farmSummary = cacheRow.farm_summary ?? ""
+  const financialSummary = cacheRow.financial_summary ?? ""
+  const marketSummary = cacheRow.market_summary ?? ""
+  const recentDecisions = cacheRow.recent_decisions ?? ""
+  const activeOpportunities = cacheRow.active_opportunities ?? ""
+  const riskFlags = cacheRow.risk_flags ?? ""
 
   const fullContext = [
     farmSummary,
@@ -405,7 +408,7 @@ export async function getFarmContext(
     activeOpportunities,
     riskFlags,
     fullContext,
-    estimatedTokens: cached.total_tokens_estimate ?? 0,
+    estimatedTokens: cacheRow.total_tokens_estimate ?? 0,
   }
 }
 

@@ -136,7 +136,6 @@ export function WeatherWidget({ currentProp, forecastProp }: Props) {
 export function getWeatherActions(forecast: ForecastDay[]): string[] {
   const actions: string[] = []
   const tomorrow = forecast[1]
-  const dayAfter = forecast[2]
 
   if (tomorrow?.rainMm > 5) {
     actions.push("💧 Skip irrigation tomorrow — rain expected")

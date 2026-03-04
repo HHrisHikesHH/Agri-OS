@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server"
+import { NextResponse } from "next/server"
 
 import { createClient } from "@/lib/supabase/server"
 import {
@@ -7,7 +7,7 @@ import {
 } from "@/lib/ai/context/builder"
 import type { UsersRow } from "@/lib/types/database.types"
 
-export async function POST(_request: NextRequest) {
+export async function POST() {
   const supabase = createClient()
   const {
     data: { user },

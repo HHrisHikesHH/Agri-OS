@@ -35,7 +35,6 @@ export function FinancialOverview({
   transactions,
   recentSales,
   activeCycles,
-  seasons,
   portfolioItems,
 }: FinancialOverviewProps) {
   const [showSaleForm, setShowSaleForm] = useState(false)

@@ -7,6 +7,7 @@ import type {
   PlotsRow,
   PortfolioItemsRow,
   SeasonsRow,
+  UsersRow,
 } from "@/lib/types/database.types"
 
 interface SeasonWithCycles extends SeasonsRow {
@@ -36,6 +37,7 @@ export default async function SeasonDetailPage({
     .single()
 
   if (!userRow) redirect("/onboarding")
+  const u = userRow as UsersRow
 
   const { data: seasonRaw } = await supabase
     .from("seasons")
@@ -50,7 +52,7 @@ export default async function SeasonDetailPage({
       )
     `)
     .eq("id", params.seasonId)
-    .eq("user_id", userRow.id)
+    .eq("user_id", u.id)
     .single()
 
   if (!seasonRaw) redirect("/crops")

@@ -2,6 +2,11 @@ import Link from "next/link"
 import { redirect } from "next/navigation"
 
 import { createClient } from "@/lib/supabase/server"
+import type {
+  FarmProfilesRow,
+  PlotsRow,
+  UsersRow,
+} from "@/lib/types/database.types"
 
 export default async function FarmPage() {
   const supabase = createClient()
@@ -19,32 +24,33 @@ export default async function FarmPage() {
   if (!userRow) {
     redirect("/onboarding")
   }
+  const u = userRow as UsersRow
 
   const [farmProfileResult, plotsResult, assetsResult, portfolioResult] =
     await Promise.all([
       supabase
         .from("farm_profiles")
         .select("*")
-        .eq("user_id", userRow.id)
+        .eq("user_id", u.id)
         .single(),
       supabase
         .from("plots")
         .select("*", { count: "exact" })
-        .eq("user_id", userRow.id)
+        .eq("user_id", u.id)
         .eq("is_active", true),
       supabase
         .from("assets")
         .select("*", { count: "exact" })
-        .eq("user_id", userRow.id),
+        .eq("user_id", u.id),
       supabase
         .from("portfolio_items")
         .select("*", { count: "exact" })
-        .eq("user_id", userRow.id)
+        .eq("user_id", u.id)
         .eq("is_active", true),
     ])
 
-  const farmProfile = farmProfileResult.data
-  const plots = plotsResult.data ?? []
+  const farmProfile = farmProfileResult.data as FarmProfilesRow | null
+  const plots = (plotsResult.data as PlotsRow[] | null) ?? []
   const plotCount = plotsResult.count ?? 0
   const assetCount = assetsResult.count ?? 0
   const portfolioCount = portfolioResult.count ?? 0

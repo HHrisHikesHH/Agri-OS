@@ -5,6 +5,7 @@ import { WaterSourceForm } from "@/components/farm/plots/WaterSourceForm"
 import { createClient } from "@/lib/supabase/server"
 import type {
   PlotsRow,
+  UsersRow,
   WaterSourcesRow,
 } from "@/lib/types/database.types"
 
@@ -31,6 +32,7 @@ export default async function PlotDetailPage({ params }: PlotDetailPageProps) {
     .single()
 
   if (!userRow) redirect("/onboarding")
+  const u = userRow as UsersRow
 
   const { data: plotRaw } = await supabase
     .from("plots")
@@ -41,7 +43,7 @@ export default async function PlotDetailPage({ params }: PlotDetailPageProps) {
     `,
     )
     .eq("id", params.id)
-    .eq("user_id", userRow.id)
+    .eq("user_id", u.id)
     .single()
 
   if (!plotRaw) {

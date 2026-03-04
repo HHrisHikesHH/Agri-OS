@@ -1,0 +1,25 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "npm run build",
+  "devCommand": "npm run dev",
+  "installCommand": "npm install",
+  "crons": [
+    {
+      "path": "/api/health",
+      "schedule": "30 1 * * *"
+    },
+    {
+      "path": "/api/market/sync",
+      "schedule": "30 8 * * *"
+    },
+    {
+      "path": "/api/agent/digest",
+      "schedule": "30 0 * * *"
+    },
+    {
+      "path": "/api/news/sync",
+      "schedule": "30 2 * * 1,4"
+    }
+  ]
+}
+

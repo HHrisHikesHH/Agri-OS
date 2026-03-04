@@ -2,6 +2,7 @@ import { redirect } from "next/navigation"
 
 import { SeasonsOverview } from "@/components/crops/SeasonsOverview"
 import { createClient } from "@/lib/supabase/server"
+import type { UsersRow } from "@/lib/types/database.types"
 
 export default async function CropsPage() {
   const supabase = createClient()
@@ -17,6 +18,7 @@ export default async function CropsPage() {
     .single()
 
   if (!userRow) redirect("/onboarding")
+  const u = userRow as UsersRow
 
   const { data: seasonsRaw } = await supabase
     .from("seasons")
@@ -32,7 +34,7 @@ export default async function CropsPage() {
         portfolio_items ( name, category )
       )
     `)
-    .eq("user_id", userRow.id)
+    .eq("user_id", u.id)
     .order("year", { ascending: false })
     .order("type", { ascending: true })
 

@@ -4,10 +4,7 @@ import { PriceHistoryChart } from "@/components/market/PriceHistoryChart"
 import { SellWindowIndicator } from "@/components/market/SellWindowIndicator"
 import { createClient } from "@/lib/supabase/server"
 import { getSellWindowAdvice } from "@/lib/data/price-seasonality"
-import type {
-  MarketPricesRow,
-  UsersRow,
-} from "@/lib/types/database.types"
+import type { MarketPricesRow } from "@/lib/types/database.types"
 // import { formatINR } from "@/lib/utils/currency"
 
 type Props = {
@@ -30,7 +27,6 @@ export default async function CommodityPricesPage({
     .single()
 
   if (!userRow) redirect("/onboarding")
-  const _u = userRow as UsersRow
 
   const now = new Date()
   const ninetyDaysAgo = new Date(
@@ -98,7 +94,6 @@ export default async function CommodityPricesPage({
       Number.POSITIVE_INFINITY,
     ) ?? 0
 
-  const todayRows = history.filter((p) => p.price_date === today)
   const currentMonth = new Date().getMonth() + 1
   const advice = getSellWindowAdvice(
     commodityName.toLowerCase(),
