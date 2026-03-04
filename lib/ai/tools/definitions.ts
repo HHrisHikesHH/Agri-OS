@@ -358,6 +358,115 @@ export const AGENT_TOOLS: Tool[] = [
       required: ["title", "description"],
     },
   },
+
+  // ─── FARM PROFILE & PORTFOLIO TOOLS ──────────────────
+
+  {
+    name: "update_farm_profile",
+    description:
+      "Update farm profile details like total land size or location. Use when the user corrects or changes their acres, village, taluk, district or state.",
+    parameters: {
+      type: "object",
+      properties: {
+        total_acres: {
+          type: "number",
+          description:
+            "Total farm area in acres. Use when farmer corrects or updates land size.",
+        },
+        village: {
+          type: "string",
+          description:
+            "Village name if the farmer corrects or specifies it.",
+        },
+        taluk: {
+          type: "string",
+          description:
+            "Taluk name if the farmer corrects or specifies it.",
+        },
+        district: {
+          type: "string",
+          description:
+            "District name if the farmer corrects or specifies it.",
+        },
+        state: {
+          type: "string",
+          description:
+            "State name if the farmer corrects or specifies it.",
+        },
+      },
+      required: [],
+    },
+  },
+
+  {
+    name: "upsert_portfolio_crop",
+    description:
+      "Add or activate a crop in the farmer's portfolio. Use when the user says they grow a crop that is missing or inactive.",
+    parameters: {
+      type: "object",
+      properties: {
+        crop_name: {
+          type: "string",
+          description:
+            "Primary crop name in English, e.g. tur, jowar, sunflower.",
+        },
+        local_name: {
+          type: "string",
+          description:
+            "Local name in farmer's language, if mentioned.",
+        },
+        category: {
+          type: "string",
+          description:
+            "Category of the item. Default 'crop'.",
+          enum: ["crop", "tree", "fruit", "vegetable", "other"],
+        },
+        tree_count: {
+          type: "number",
+          description:
+            "Approximate number of trees if this is a horticulture crop like mango or guava.",
+        },
+      },
+      required: ["crop_name"],
+    },
+  },
+
+  {
+    name: "start_crop_cycle",
+    description:
+      "Create a new crop cycle that has just started (e.g. sowing/buwai). Use when the user says they have started or are about to start a crop.",
+    parameters: {
+      type: "object",
+      properties: {
+        crop_name: {
+          type: "string",
+          description:
+            "Crop name e.g. tur, jowar, sunflower. Use when user mentions which crop they sowed.",
+        },
+        area_acres: {
+          type: "number",
+          description:
+            "Area under this crop in acres. If omitted, default to plot or farm area where reasonable.",
+        },
+        plot_name: {
+          type: "string",
+          description:
+            "Name of the plot if user mentions it (e.g. front field, borewell plot).",
+        },
+        sowing_date: {
+          type: "string",
+          description:
+            "Sowing date in YYYY-MM-DD. Default is today when not specified.",
+        },
+        seed_variety: {
+          type: "string",
+          description:
+            "Seed variety name if user mentions it.",
+        },
+      },
+      required: ["crop_name"],
+    },
+  },
 ]
 
 export type ToolName = (typeof AGENT_TOOLS)[number]["name"]

@@ -844,6 +844,301 @@ export async function executeTool(
         }
       }
 
+      case "update_farm_profile": {
+        const fields: Record<string, unknown> = {}
+        if (typeof params.total_acres === "number") {
+          fields.total_acres = params.total_acres
+        }
+        if (typeof params.village === "string") {
+          fields.village = params.village
+        }
+        if (typeof params.taluk === "string") {
+          fields.taluk = params.taluk
+        }
+        if (typeof params.district === "string") {
+          fields.district = params.district
+        }
+        if (typeof params.state === "string") {
+          fields.state = params.state
+        }
+
+        if (Object.keys(fields).length === 0) {
+          return {
+            tool: toolName,
+            success: false,
+            error:
+              "No farm profile fields provided to update.",
+          }
+        }
+
+        const { data: existing } = await supabase
+          .from("farm_profiles")
+          .select("id, total_acres, village, taluk, district, state")
+          .eq("user_id", userId)
+          .maybeSingle()
+
+        if (existing) {
+          await supabase
+            .from("farm_profiles")
+            .update(fields)
+            .eq("id", existing.id)
+        } else {
+          await supabase.from("farm_profiles").insert({
+            user_id: userId,
+            ...fields,
+          })
+        }
+
+        return {
+          tool: toolName,
+          success: true,
+          data: {
+            message: "Farm profile updated",
+            updated_fields: fields,
+          },
+        }
+      }
+
+      case "upsert_portfolio_crop": {
+        const cropName = String(
+          params.crop_name ?? "",
+        ).trim()
+        if (!cropName) {
+          return {
+            tool: toolName,
+            success: false,
+            error: "crop_name is required",
+          }
+        }
+
+        const { data: existing } = await supabase
+          .from("portfolio_items")
+          .select("id, name, is_active, category")
+          .eq("user_id", userId)
+          .ilike("name", `%${cropName}%`)
+          .maybeSingle()
+
+        const category =
+          (params.category as string | undefined) ??
+          "crop"
+
+        if (existing) {
+          await supabase
+            .from("portfolio_items")
+            .update({
+              is_active: true,
+              category:
+                existing.category ?? category,
+              local_name:
+                (params.local_name as string | undefined) ??
+                existing.local_name ??
+                null,
+            })
+            .eq("id", existing.id)
+
+          return {
+            tool: toolName,
+            success: true,
+            data: {
+              message:
+                "Existing portfolio crop activated/updated",
+              id: existing.id,
+              name: existing.name,
+            },
+          }
+        }
+
+        const { data: inserted, error } = await supabase
+          .from("portfolio_items")
+          .insert({
+            user_id: userId,
+            name: cropName,
+            local_name:
+              (params.local_name as string | undefined) ??
+              null,
+            category,
+            is_active: true,
+          })
+          .select("id, name")
+          .maybeSingle()
+
+        if (error) {
+          return {
+            tool: toolName,
+            success: false,
+            error: error.message,
+          }
+        }
+
+        return {
+          tool: toolName,
+          success: true,
+          data: {
+            message: "New crop added to portfolio",
+            id: inserted?.id,
+            name: inserted?.name,
+          },
+        }
+      }
+
+      case "start_crop_cycle": {
+        const cropName = String(
+          params.crop_name ?? "",
+        ).trim()
+        if (!cropName) {
+          return {
+            tool: toolName,
+            success: false,
+            error: "crop_name is required",
+          }
+        }
+
+        const todayStr =
+          (params.sowing_date as string | undefined) ??
+          new Date().toISOString().split("T")[0]
+
+        // Find or create portfolio item for this crop.
+        const { data: existingItem } = await supabase
+          .from("portfolio_items")
+          .select("id, name, category, is_active")
+          .eq("user_id", userId)
+          .ilike("name", `%${cropName}%`)
+          .maybeSingle()
+
+        let portfolioItemId: string | null = null
+        let portfolioItemName = cropName
+
+        if (existingItem) {
+          portfolioItemId = existingItem.id
+          portfolioItemName = existingItem.name
+          await supabase
+            .from("portfolio_items")
+            .update({ is_active: true })
+            .eq("id", existingItem.id)
+        } else {
+          const { data: inserted, error } = await supabase
+            .from("portfolio_items")
+            .insert({
+              user_id: userId,
+              name: cropName,
+              category: "crop",
+              is_active: true,
+            })
+            .select("id, name")
+            .maybeSingle()
+          if (error) {
+            return {
+              tool: toolName,
+              success: false,
+              error: error.message,
+            }
+          }
+          portfolioItemId = inserted?.id ?? null
+          portfolioItemName =
+            inserted?.name ?? portfolioItemName
+        }
+
+        // Choose a plot (if any active plots exist).
+        const { data: plots } = await supabase
+          .from("plots")
+          .select("id, name, area_acres")
+          .eq("user_id", userId)
+          .eq("is_active", true)
+
+        const plotRows = (plots ?? []) as any[]
+        let chosenPlot: any | null = null
+        const plotNameFilter = (
+          params.plot_name as string | undefined
+        )?.toLowerCase()
+        if (plotNameFilter && plotRows.length > 0) {
+          chosenPlot =
+            plotRows.find((p) =>
+              String(p.name ?? "")
+                .toLowerCase()
+                .includes(plotNameFilter),
+            ) ?? plotRows[0]
+        } else if (plotRows.length > 0) {
+          chosenPlot = plotRows[0]
+        }
+
+        // Choose a season for the current year if available.
+        const now = new Date()
+        const year = now.getFullYear()
+        const month = now.getMonth() + 1
+        let seasonType: string | null = null
+        if (month >= 6 && month <= 10) {
+          seasonType = "kharif"
+        } else if (month >= 11 || month <= 2) {
+          seasonType = "rabi"
+        } else {
+          seasonType = "summer"
+        }
+
+        const { data: seasons } = await supabase
+          .from("seasons")
+          .select("id, name, type, year")
+          .eq("user_id", userId)
+          .eq("year", year)
+
+        const seasonRows = (seasons ?? []) as any[]
+        let chosenSeason: any | null = null
+        if (seasonRows.length > 0) {
+          chosenSeason =
+            seasonRows.find(
+              (s) =>
+                s.type &&
+                s.type.toLowerCase() ===
+                  seasonType?.toLowerCase(),
+            ) ?? seasonRows[0]
+        }
+
+        const areaAcres =
+          typeof params.area_acres === "number"
+            ? params.area_acres
+            : chosenPlot?.area_acres ?? null
+
+        const { data: cycle, error } = await supabase
+          .from("crop_cycles")
+          .insert({
+            user_id: userId,
+            plot_id: chosenPlot?.id ?? null,
+            season_id: chosenSeason?.id ?? null,
+            portfolio_item_id: portfolioItemId,
+            area_acres: areaAcres,
+            sowing_date: todayStr,
+            status: "sowing",
+            seed_variety:
+              (params.seed_variety as string | undefined) ??
+              null,
+            meta: { started_by: "agent" },
+          })
+          .select("id")
+          .maybeSingle()
+
+        if (error) {
+          return {
+            tool: toolName,
+            success: false,
+            error: error.message,
+          }
+        }
+
+        return {
+          tool: toolName,
+          success: true,
+          data: {
+            message:
+              "New crop cycle created and marked as sowing",
+            cycle_id: cycle?.id,
+            crop: portfolioItemName,
+            plot: chosenPlot?.name ?? null,
+            season: chosenSeason?.name ?? null,
+            sowing_date: todayStr,
+            area_acres: areaAcres,
+          },
+        }
+      }
+
       default:
         return {
           tool: toolName,
